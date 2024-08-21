@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "trackoverflow-search.helloWorld",
-        "title": "Hello World"
+        "command": "trackoverflow-search.mainView",
+        "title": "TrackOverflow Search"
       }
     ]
   },
