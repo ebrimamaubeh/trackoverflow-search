@@ -11,7 +11,36 @@ searchForm.addEventListener('submit', function(event){
     getStackOverflowData();
 });
 
-// add copy buttons to text. 
+
+function toggleLoading(showLoading){
+    if(showLoading){
+        /**
+         *  <div class="d-flex align-items-center">
+                <strong role="status">Loading...</strong>
+                <div class="spinner-border ms-auto" aria-hidden="true"></div>
+            </div>
+         */
+        let loadingDiv = document.createElement('div');
+        let loadingText = document.createElement('strong');
+        let loadingLogo = document.createElement('div');
+
+        loadingDiv.setAttribute('class', 'd-flex align-items-center');
+
+        loadingText.setAttribute('role', 'status');
+        loadingText.innerHTML = 'Loading...';
+
+        loadingLogo.setAttribute('class', 'spinner-border ms-auto');
+        loadingLogo.setAttribute('aria-hidden', 'true');
+        
+        // add elements to page.
+        loadingDiv.appendChild(loadingText);
+        loadingDiv.appendChild(loadingLogo);
+        document.getElementById('loadingContainer').appendChild(loadingDiv);// add to doc
+    }
+    else{
+        document.getElementById('loadingContainer').innerHTML = '';
+    }
+}
 
 
 async function getStackOverflowData(){
@@ -19,13 +48,15 @@ async function getStackOverflowData(){
     const page = 1;
     const order = 'desc'; // desc, asc...
     const sort = 'relevance'; // relevance, activity, votes, creation...
-    const pageSize = 20;
+    const pageSize = 100;
     ////////////////////////////////////////////////////////////////
 
     // filter using the question using quesiton id.
     /**
      * https://api.stackexchange.com/2.3/questions/15182496?order=desc&sort=activity&site=stackoverflow&filter=!*Mg4PjfgUgqOW6wX
      */
+
+    toggleLoading(true);
 
     const searchAPI = 'https://api.stackexchange.com/2.3/search?page='+ page +'&pagesize='+ pageSize +'&order='+ 
                         order +'&sort='+ sort +'&intitle='+ searchInput.value +'&site=stackoverflow&filter=!*Mg4PjfgUgqOW6wX';
@@ -42,6 +73,8 @@ async function getStackOverflowData(){
     for(let i = 0; i < codes.length; i++){
         codes[i].parentNode.after(getCopyButton()); // not working yet.
     }
+
+    toggleLoading(false);
 
 }
 
