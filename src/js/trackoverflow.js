@@ -17,26 +17,34 @@ searchForm.addEventListener('submit', function(event){
 
 //validate functions and data.
 function searchBoxNotEmpty(){
-    if(!searchInput.value.trim().length){ // if empty, value is undefined.
-        const errorCointainer = document.getElementById('errorCointainer');
-        //empty errorCointainer if its not empty.
-        errorCointainer.innerHTML = '';
-        
-        var errorDiv = document.createElement('div');
-        errorDiv.setAttribute('class', 'alert alert-danger text-center');
-        errorDiv.setAttribute('role', 'alert');
-
-        errorDiv.innerHTML = 'Empty Search Bar Not Allowed. Please Enter Text';
-
-        errorCointainer.appendChild(errorDiv);
+    if(!searchInput.value.trim().length){ 
+        createErrorHTML('Empty Search Bar Not Allowed. Please Enter Text');
         return false;
     }
     
+    clearErrorHTML();
+
+    return true;
+}
+
+function createErrorHTML(message){
+    const errorCointainer = document.getElementById('errorCointainer');
+    //empty errorCointainer if its not empty.
+    errorCointainer.innerHTML = '';
+    
+    var errorDiv = document.createElement('div');
+    errorDiv.setAttribute('class', 'alert alert-danger text-center');
+    errorDiv.setAttribute('role', 'alert');
+
+    errorDiv.innerHTML = message;
+
+    errorCointainer.appendChild(errorDiv);
+}
+
+function clearErrorHTML(){
     // items might be on the list, so remove them.
     document.getElementById('accordionFlushDiv').innerHTML = '';
     document.getElementById('errorCointainer').innerHTML = '';
-
-    return true;
 }
 
 
@@ -99,6 +107,10 @@ async function getStackOverflowData(){
     for(let i = 0; i < items.length; i++){
         console.log(items[i]);
         createResultHTML(items[i], i);
+    }
+
+    if(!items.length){ // length == 0
+        createErrorHTML('No Search results found for : "'+ searchInput.value + '"');
     }
 
     var codes = document.querySelectorAll('pre > code');
