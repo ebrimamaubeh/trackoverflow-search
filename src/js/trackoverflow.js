@@ -9,8 +9,35 @@ searchForm.addEventListener('submit', function(event){
     //clicking is really a pain with vscode, so don't submit.
     event.preventDefault();
 
-    getStackOverflowData();
+    if(searchBoxNotEmpty()){
+        getStackOverflowData();
+    }
+
 });
+
+//validate functions and data.
+function searchBoxNotEmpty(){
+    if(!searchInput.value.trim().length){ // if empty, value is undefined.
+        const errorCointainer = document.getElementById('errorCointainer');
+        //empty errorCointainer if its not empty.
+        errorCointainer.innerHTML = '';
+        
+        var errorDiv = document.createElement('div');
+        errorDiv.setAttribute('class', 'alert alert-danger text-center');
+        errorDiv.setAttribute('role', 'alert');
+
+        errorDiv.innerHTML = 'Empty Search Bar Not Allowed. Please Enter Text';
+
+        errorCointainer.appendChild(errorDiv);
+        return false;
+    }
+    
+    // items might be on the list, so remove them.
+    document.getElementById('accordionFlushDiv').innerHTML = '';
+    document.getElementById('errorCointainer').innerHTML = '';
+
+    return true;
+}
 
 
 function toggleLoading(showLoading){
@@ -22,6 +49,7 @@ function toggleLoading(showLoading){
             </div>
          */
         let loadingDiv = document.createElement('div');
+
         let loadingText = document.createElement('strong');
         let loadingLogo = document.createElement('div');
 
@@ -49,7 +77,7 @@ async function getStackOverflowData(){
     const page = 1;
     const order = 'desc'; // desc, asc...
     const sort = 'relevance'; // relevance, activity, votes, creation...
-    const pageSize = 100;
+    const pageSize = 1;
     ////////////////////////////////////////////////////////////////
 
     // filter using the question using quesiton id.
@@ -64,6 +92,9 @@ async function getStackOverflowData(){
     let result = await fetch(searchAPI);
     let jsonData = await result.json();
     let items = jsonData.items;
+
+    // clear old search value. double search might happend.
+    document.getElementById('accordionFlushDiv').innerHTML = '';
 
     for(let i = 0; i < items.length; i++){
         console.log(items[i]);
@@ -107,7 +138,6 @@ function createResultHTML(question, counter){
     accordionDiv.appendChild(newDiv);
 
     addCodeStyles(); // add some styles.
-    
 }
 
 function renderQuestionHTML(title, text, dataTarget){
