@@ -1,3 +1,7 @@
-1. do a loading picture while getting the content. (solve this today.)
+1. do pagenation, can't publish all on one page.
 
-2. do pagenation, can't publish all on one page.
+2. show answers (user clicks button to view anwer, then each click loads one answer.)
+
+3. validate form later. 
+     1. cannot be empty. 
+     2. also if the form returns no result, then show them there is no result.

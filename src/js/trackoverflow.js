@@ -1,3 +1,4 @@
+
 var searchInput = document.getElementById('searchInput');
 searchInput.focus();
 
