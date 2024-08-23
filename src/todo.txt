@@ -1,7 +1,12 @@
+// solve this tomorrow.
 1. do pagenation, can't publish all on one page.
 
 2. show answers (user clicks button to view anwer, then each click loads one answer.)
 
-3. validate form later. 
-     1. cannot be empty. 
-     2. also if the form returns no result, then show them there is no result.
+
+
+
+
+Bonus. 
+100. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 
+   specific bug errors. 

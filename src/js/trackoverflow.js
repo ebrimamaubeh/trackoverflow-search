@@ -82,11 +82,18 @@ function toggleLoading(showLoading){
 
 async function getStackOverflowData(){
     // might change this is vscode settings you implement later...
-    const page = 1;
+    const defaultPage = 1;
+    var page = location.hash.replace('#', '');
     const order = 'desc'; // desc, asc...
     const sort = 'relevance'; // relevance, activity, votes, creation...
-    const pageSize = 1;
+    const pageSize = 2;
     ////////////////////////////////////////////////////////////////
+
+    if(!((typeof page) === 'number') || !page.length){ // not a number.
+        page = defaultPage;
+    }
+
+    console.log('page = ', page);
 
     // filter using the question using quesiton id.
     /**
@@ -120,6 +127,8 @@ async function getStackOverflowData(){
 
     toggleLoading(false);
 
+    createPaginationHTML();// change this for page 2 to n.
+
 }
 
 function getCopyButton(){
@@ -150,6 +159,48 @@ function createResultHTML(question, counter){
     accordionDiv.appendChild(newDiv);
 
     addCodeStyles(); // add some styles.
+}
+
+function createPaginationHTML(maxPages = 10){
+    /**
+     * pagination copied from boostrap 5 code examples, and recreated using code.
+     */
+    var ul = document.getElementById('paginationUL');
+    var pageCounter = 1;
+    
+    createLI(ul, 'page-item disabled', 'page-link fs-3', 0, linkValue = 'Previous'); 
+    
+    for(pageCounter = 1; pageCounter <= maxPages; pageCounter++){
+        if(pageCounter === 1){
+            createLI(ul, 'page-item active', 'page-link fs-3', pageCounter);
+        }
+        else{
+            createLI(ul, 'page-item', 'page-link fs-3', pageCounter);
+        }
+    }
+
+    createLI(ul, 'page-item', 'page-link fs-3', 0, linkvalue = 'Next'); 
+
+    // nested function to create an li element.
+    function createLI(pageUL, liClass, aClass, pageCounter, linkValue = null){
+        var li = document.createElement('li');
+        li.setAttribute('class', liClass);
+        
+        var a = document.createElement('a');
+        a.setAttribute('class', aClass);
+
+        if(linkValue === null){ //not empty. so fill value.
+            a.innerHTML = pageCounter;
+            a.setAttribute('href', '#' + pageCounter);
+        }
+        else{
+            a.innerHTML = linkValue;
+            a.setAttribute('href', '#');
+        }
+        
+        li.appendChild(a);
+        pageUL.appendChild(li);
+    }
 }
 
 function renderQuestionHTML(title, text, dataTarget){
