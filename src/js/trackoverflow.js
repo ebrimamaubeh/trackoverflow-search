@@ -12,7 +12,6 @@ searchForm.addEventListener('submit', function(event){
     if(searchBoxNotEmpty()){
         getStackOverflowData();
     }
-
 });
 
 //validate functions and data.
@@ -84,8 +83,11 @@ async function getStackOverflowData(page = 1){
     // might change this is vscode settings you implement later...
     const order = 'desc'; // desc, asc...
     const sort = 'relevance'; // relevance, activity, votes, creation...
-    const pageSize = 2;
+    const pageSize = 10;
     ////////////////////////////////////////////////////////////////
+
+    // set hash to default page, because it must always be set.
+    location.hash = (page === 1) ? 1 : page;
 
     // filter using the question using quesiton id.
     /**
@@ -95,16 +97,17 @@ async function getStackOverflowData(page = 1){
     toggleLoading(true);
 
     const searchAPI = 'https://api.stackexchange.com/2.3/search?page='+ page +'&pagesize='+ pageSize +'&order='+ 
-                        order +'&sort='+ sort +'&intitle='+ searchInput.value +'&site=stackoverflow&filter=!*Mg4PjfgUgqOW6wX';
+                        order +'&sort='+ sort +'&intitle='+ searchInput.value +'&site=stackoverflow&filter=!T3AudpgBenaj(RyF)D';
     let result = await fetch(searchAPI);
     let jsonData = await result.json();
     let items = jsonData.items;
+
+    console.log(jsonData);
 
     // clear old search value. double search might happend.
     document.getElementById('accordionFlushDiv').innerHTML = '';
 
     for(let i = 0; i < items.length; i++){
-        console.log(items[i]);
         createResultHTML(items[i], i);
     }
 
@@ -121,6 +124,27 @@ async function getStackOverflowData(page = 1){
 
     createPaginationHTML(currentPage = page);// change this for page 2 to n.
 
+}
+
+// next or previous buttons clicked.
+function paginationClickedDX(dx){
+    // what if the button is not clickable?
+
+    var page = location.hash.replace('#', '');
+ 
+    //check if number. i think this will fix clickable, since not number.
+    if(typeof page === 'number'){
+        //update the url hash. 
+        location.hash = page + dx; //update hash.
+
+        //getStackOverflowData(page + dx);
+    }
+    else{
+        location.hash = 1; //default page.
+        console.log('in else');
+    }
+
+    console.log('paginationClickedDX called');
 }
 
 function getCopyButton(){
@@ -178,7 +202,7 @@ function createPaginationHTML(currentPage, maxPages = 10){
     }
 
     if(currentPage === maxPages){
-        createLI(ul, 'page-item disabled', linkClass, 0, linkvalue = 'Next'); 
+        createLI(ul, 'page-item disabled', linkClass, 0, linkvalue = 'Next');
     }
     else{
         createLI(ul, 'page-item', linkClass, 0, linkvalue = 'Next');
@@ -201,7 +225,24 @@ function createPaginationHTML(currentPage, maxPages = 10){
         }
         else{
             a.innerHTML = linkValue;
-            a.setAttribute('href', '#');
+
+            var tempPage = location.href.replace('#', '');
+            tempPage = (typeof tempPage === 'number') ? tempPage : 1;
+
+            // check if next or previous
+            if(linkValue === 'Next'){
+                a.setAttribute('id', 'nextButton');
+                a.addEventListener('click', function(){
+                    getStackOverflowData(tempPage + 1); 
+                });
+            }
+            else{
+                a.setAttribute('id', 'previousButton');
+                a.addEventListener('click', function(){
+                    getStackOverflowData(tempPage - 1); 
+                });
+            }
+
         }
         
         li.appendChild(a);

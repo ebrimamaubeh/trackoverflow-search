@@ -1,5 +1,3 @@
-
-
 // solve this tomorrow.
 1. do pagenation, can't publish all on one page.
 
@@ -7,8 +5,11 @@
 
 
 
-
-
 Bonus. 
-100. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 
+1. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 
    specific bug errors. 
+
+2. make max pagination dynamic.
+
+3. Add 'Next' and 'Previous' buttons to pagination. it given me problems, so I will remove it 
+till later.
