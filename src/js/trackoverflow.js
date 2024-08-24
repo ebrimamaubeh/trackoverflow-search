@@ -80,20 +80,12 @@ function toggleLoading(showLoading){
 }
 
 
-async function getStackOverflowData(){
+async function getStackOverflowData(page = 1){
     // might change this is vscode settings you implement later...
-    const defaultPage = 1;
-    var page = location.hash.replace('#', '');
     const order = 'desc'; // desc, asc...
     const sort = 'relevance'; // relevance, activity, votes, creation...
     const pageSize = 2;
     ////////////////////////////////////////////////////////////////
-
-    if(!((typeof page) === 'number') || !page.length){ // not a number.
-        page = defaultPage;
-    }
-
-    console.log('page = ', page);
 
     // filter using the question using quesiton id.
     /**
@@ -127,7 +119,7 @@ async function getStackOverflowData(){
 
     toggleLoading(false);
 
-    createPaginationHTML();// change this for page 2 to n.
+    createPaginationHTML(currentPage = page);// change this for page 2 to n.
 
 }
 
@@ -161,25 +153,36 @@ function createResultHTML(question, counter){
     addCodeStyles(); // add some styles.
 }
 
-function createPaginationHTML(maxPages = 10){
+function createPaginationHTML(currentPage, maxPages = 10){
     /**
      * pagination copied from boostrap 5 code examples, and recreated using code.
      */
     var ul = document.getElementById('paginationUL');
-    var pageCounter = 1;
+    ul.innerHTML = ''; // clear previous elements. 
     
-    createLI(ul, 'page-item disabled', 'page-link fs-3', 0, linkValue = 'Previous'); 
+    var pageCounter = 1;
+    var linkClass = 'page-link fs-3';
+    var liClass = null;
+
+    liClass = (currentPage === 1) ? 'page-item disabled' : 'page-item';
+    
+    //first element
+    createLI(ul, liClass, linkClass , 0, linkValue = 'Previous');
     
     for(pageCounter = 1; pageCounter <= maxPages; pageCounter++){
-        if(pageCounter === 1){
-            createLI(ul, 'page-item active', 'page-link fs-3', pageCounter);
-        }
-        else{
-            createLI(ul, 'page-item', 'page-link fs-3', pageCounter);
-        }
+        //condition ? exprIfTrue : exprIfFalse
+        liClass = (pageCounter === currentPage) ? 'page-item active' : 'page-item';
+        
+        createLI(ul, liClass, linkClass, pageCounter);
+
     }
 
-    createLI(ul, 'page-item', 'page-link fs-3', 0, linkvalue = 'Next'); 
+    if(currentPage === maxPages){
+        createLI(ul, 'page-item disabled', linkClass, 0, linkvalue = 'Next'); 
+    }
+    else{
+        createLI(ul, 'page-item', linkClass, 0, linkvalue = 'Next');
+    }
 
     // nested function to create an li element.
     function createLI(pageUL, liClass, aClass, pageCounter, linkValue = null){
@@ -192,6 +195,9 @@ function createPaginationHTML(maxPages = 10){
         if(linkValue === null){ //not empty. so fill value.
             a.innerHTML = pageCounter;
             a.setAttribute('href', '#' + pageCounter);
+            a.addEventListener('click', function(){
+                getStackOverflowData(pageCounter); // //must build a function that does this.
+            });
         }
         else{
             a.innerHTML = linkValue;
