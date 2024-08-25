@@ -24,13 +24,17 @@ $(document).ready(function(){
             callback: function (data, pagination) {
                 var html = template(data);
                 $("#accordionFlushDiv").html(html);
+                
+                // call more functions.
+                addCodeStyles(); 
+                addCopyButton();
             }
         });
     }
 
     async function getStackOverflowData(searchInput, page = 1){
         var link = 'https://api.stackexchange.com/2.3/search?page='+ page +'&pageSize=100'+ '' 
-                    +'&order=desc&sort=activity&intitle='+ searchInput +'&'+ '' 
+                    +'&order=desc&sort=relevance&intitle='+ searchInput +'&'+ '' 
                     +'site=stackoverflow&filter=!*Mg4PjfgUgqOW6wX';
         let result = await fetch(link);
         let jsonData = await result.json();
@@ -46,6 +50,24 @@ $(document).ready(function(){
         }
         
         return html;
+    }
+
+    function addCodeStyles(){
+        var pre = document.querySelectorAll('pre');
+        for(let i = 0; i < pre.length; i++){
+            pre[i].style.backgroundColor = 'lightGrey';
+            pre.appe
+        }
+    }
+
+    function addCopyButton(){
+        var codes = document.querySelectorAll('pre > code');
+        for(let i = 0; i < codes.length; i++){
+            var button = document.createElement('button');
+            button.setAttribute('class', 'btn btn-primary');
+            button.innerHTML = 'Copy Code';
+            codes[i].parentNode.after(button); // not working yet.
+        }
     }
 
 
