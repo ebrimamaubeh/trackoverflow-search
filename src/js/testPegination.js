@@ -4,16 +4,34 @@ $(document).ready(function(){
     var has_more = null;
 
     $('#searchForm').submit(searchFormSubmitHandler);
+    
 
     async function searchFormSubmitHandler(event){
         event.preventDefault();
 
-        var searchInputValut = $('#searchInput').val(); // validate later. trim and not empty.
+        var searchInputValut = $('#searchInput').val(); // fix no search result.
+
+        //////////////  Handle empty search box error  ///////////////
+        if(searchInputValut.trim().length === 0){
+            createErrorHTML('Error: Search Box Cannot Be Empty!');
+            return;
+        }
+        clearErrorHTML();
+        //////////////  Handle empty search box error  ///////////////
         
         var jsonData = await getStackOverflowData(searchInputValut);
         has_more = jsonData.has_more;
         var items = jsonData.items; // this might increase later. > 100 items. 
         console.log(jsonData);
+
+        //////////////  Handle empty search box error  ///////////////
+        if(items.length === 0){
+            var message = '<h1>Error: No Search Results Found For Input: "'+ searchInputValut + '"</h1>';
+            createErrorHTML(message);
+            return;
+        }
+        clearErrorHTML();
+        //////////////  Handle empty search box error  ///////////////
 
         let container = $('#pagination');
         container.pagination({
@@ -27,7 +45,11 @@ $(document).ready(function(){
                 
                 // call more functions.
                 addCodeStyles(); 
-                addCopyButton();
+                addCopyButton();// add onclick on all buttons later.    
+            }, 
+            beforePaging: function(value){
+                //TODO; later, use this if you want more that 10 results. 
+                //alert(value); // working...
             }
         });
     }
@@ -45,7 +67,7 @@ $(document).ready(function(){
         var html = '';
         for(var i = 0; i < items.length; i++){
             var dataTarget = 'flush-collapse' + i;
-            var qt = questionTemplate(items[i].title, items[i].body, dataTarget);
+            var qt = questionTemplate(items[i].title, items[i].body, dataTarget, items[i].link);
             html += qt;
         }
         
@@ -70,8 +92,28 @@ $(document).ready(function(){
         }
     }
 
+    //no search results, and no empty submits. 
+    function createErrorHTML(message){
+        const errorCointainer = document.getElementById('errorCointainer');
+        //empty errorCointainer if its not empty.
+        errorCointainer.innerHTML = '';
+        
+        var errorDiv = document.createElement('div');
+        errorDiv.setAttribute('class', 'alert alert-danger text-center');
+        errorDiv.setAttribute('role', 'alert');
+    
+        errorDiv.innerHTML = message;
+    
+        errorCointainer.appendChild(errorDiv);
+    }
 
-    function questionTemplate(title, text, dataTarget){
+    function clearErrorHTML(){
+        const errorCointainer = document.getElementById('errorCointainer');
+        errorCointainer.innerHTML = '';
+    }
+
+
+    function questionTemplate(title, text, dataTarget, link){
         return `
              <div class="accordion-item">
                   <h2 class="accordion-header">
@@ -89,7 +131,9 @@ $(document).ready(function(){
                                 <p class="card-text">
                                     `+ text +`
                                 </p>
-                                <a href="#" class="card-link">Card link</a>
+                                <a href="`+ link +`" class="card-link" target='_blank'>
+                                    View Original Question On StackOverflow.
+                                </a>
                             </div>
                         </div>
     

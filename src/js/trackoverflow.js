@@ -150,7 +150,6 @@ function addCodeStyles(){
     for(let i = 0; i < pre.length; i++){
         pre[i].style.backgroundColor = 'lightGrey';
     }
-
 }
 
 function createResultHTML(question, counter){
