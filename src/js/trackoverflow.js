@@ -1,4 +1,12 @@
 
+
+// global variables. 
+var has_more = null; // check if there are more elements before using fetch.
+
+// global variables. 
+
+
+
 var searchInput = document.getElementById('searchInput');
 searchInput.focus();
 
@@ -80,6 +88,11 @@ function toggleLoading(showLoading){
 
 
 async function getStackOverflowData(page = 1){
+    // if no elements, then inform user and exit.
+    if(has_more === false){ // could be null, so i have to do this.
+        
+    }
+
     // might change this is vscode settings you implement later...
     const order = 'desc'; // desc, asc...
     const sort = 'relevance'; // relevance, activity, votes, creation...
@@ -89,11 +102,6 @@ async function getStackOverflowData(page = 1){
     // set hash to default page, because it must always be set.
     location.hash = (page === 1) ? 1 : page;
 
-    // filter using the question using quesiton id.
-    /**
-     * https://api.stackexchange.com/2.3/questions/15182496?order=desc&sort=activity&site=stackoverflow&filter=!*Mg4PjfgUgqOW6wX
-     */
-
     toggleLoading(true);
 
     const searchAPI = 'https://api.stackexchange.com/2.3/search?page='+ page +'&pagesize='+ pageSize +'&order='+ 
@@ -101,6 +109,9 @@ async function getStackOverflowData(page = 1){
     let result = await fetch(searchAPI);
     let jsonData = await result.json();
     let items = jsonData.items;
+
+    // set has more for next time.
+    has_more = jsonData.has_more;
 
     console.log(jsonData);
 
@@ -124,27 +135,6 @@ async function getStackOverflowData(page = 1){
 
     createPaginationHTML(currentPage = page);// change this for page 2 to n.
 
-}
-
-// next or previous buttons clicked.
-function paginationClickedDX(dx){
-    // what if the button is not clickable?
-
-    var page = location.hash.replace('#', '');
- 
-    //check if number. i think this will fix clickable, since not number.
-    if(typeof page === 'number'){
-        //update the url hash. 
-        location.hash = page + dx; //update hash.
-
-        //getStackOverflowData(page + dx);
-    }
-    else{
-        location.hash = 1; //default page.
-        console.log('in else');
-    }
-
-    console.log('paginationClickedDX called');
 }
 
 function getCopyButton(){
@@ -187,11 +177,6 @@ function createPaginationHTML(currentPage, maxPages = 10){
     var pageCounter = 1;
     var linkClass = 'page-link fs-3';
     var liClass = null;
-
-    liClass = (currentPage === 1) ? 'page-item disabled' : 'page-item';
-    
-    //first element
-    createLI(ul, liClass, linkClass , 0, linkValue = 'Previous');
     
     for(pageCounter = 1; pageCounter <= maxPages; pageCounter++){
         //condition ? exprIfTrue : exprIfFalse
@@ -199,13 +184,6 @@ function createPaginationHTML(currentPage, maxPages = 10){
         
         createLI(ul, liClass, linkClass, pageCounter);
 
-    }
-
-    if(currentPage === maxPages){
-        createLI(ul, 'page-item disabled', linkClass, 0, linkvalue = 'Next');
-    }
-    else{
-        createLI(ul, 'page-item', linkClass, 0, linkvalue = 'Next');
     }
 
     // nested function to create an li element.
@@ -223,26 +201,8 @@ function createPaginationHTML(currentPage, maxPages = 10){
                 getStackOverflowData(pageCounter); // //must build a function that does this.
             });
         }
-        else{
-            a.innerHTML = linkValue;
-
-            var tempPage = location.href.replace('#', '');
-            tempPage = (typeof tempPage === 'number') ? tempPage : 1;
-
-            // check if next or previous
-            if(linkValue === 'Next'){
-                a.setAttribute('id', 'nextButton');
-                a.addEventListener('click', function(){
-                    getStackOverflowData(tempPage + 1); 
-                });
-            }
-            else{
-                a.setAttribute('id', 'previousButton');
-                a.addEventListener('click', function(){
-                    getStackOverflowData(tempPage - 1); 
-                });
-            }
-
+        else{// TODO: this is for 'Next' or 'Previous' buttons, for later.
+            a.innerHTML = linkValue; 
         }
         
         li.appendChild(a);
