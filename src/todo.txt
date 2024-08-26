@@ -1,4 +1,5 @@
 2. show answers (user clicks button to view anwer, then each click loads one answer.)
+   use jQuery slide down (for the answers).
 
 Bonus. 
 1. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 
