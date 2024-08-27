@@ -1,238 +1,196 @@
+$(document).ready(function(){
 
+    // global variables. 
+    var has_more = null;
 
-// global variables. 
-var has_more = null; // check if there are more elements before using fetch.
-
-// global variables. 
-
-
-
-var searchInput = document.getElementById('searchInput');
-searchInput.focus();
-
-
-var searchForm = document.getElementById('searchForm');
-
-searchForm.addEventListener('submit', function(event){
-    //clicking is really a pain with vscode, so don't submit.
-    event.preventDefault();
-
-    if(searchBoxNotEmpty()){
-        getStackOverflowData();
-    }
-});
-
-//validate functions and data.
-function searchBoxNotEmpty(){
-    if(!searchInput.value.trim().length){ 
-        createErrorHTML('Empty Search Bar Not Allowed. Please Enter Text');
-        return false;
-    }
+    $('#searchForm').submit(searchFormSubmitHandler);
     
-    clearErrorHTML();
 
-    return true;
-}
+    async function searchFormSubmitHandler(event){
+        event.preventDefault();
 
-function createErrorHTML(message){
-    const errorCointainer = document.getElementById('errorCointainer');
-    //empty errorCointainer if its not empty.
-    errorCointainer.innerHTML = '';
-    
-    var errorDiv = document.createElement('div');
-    errorDiv.setAttribute('class', 'alert alert-danger text-center');
-    errorDiv.setAttribute('role', 'alert');
+        var searchInputValut = $('#searchInput').val(); // fix no search result.
 
-    errorDiv.innerHTML = message;
-
-    errorCointainer.appendChild(errorDiv);
-}
-
-function clearErrorHTML(){
-    // items might be on the list, so remove them.
-    document.getElementById('accordionFlushDiv').innerHTML = '';
-    document.getElementById('errorCointainer').innerHTML = '';
-}
-
-
-function toggleLoading(showLoading){
-    if(showLoading){
-        /**
-         *  <div class="d-flex align-items-center">
-                <strong role="status">Loading...</strong>
-                <div class="spinner-border ms-auto" aria-hidden="true"></div>
-            </div>
-         */
-        let loadingDiv = document.createElement('div');
-
-        let loadingText = document.createElement('strong');
-        let loadingLogo = document.createElement('div');
-
-        loadingDiv.setAttribute('class', 'd-flex align-items-center');
-
-        loadingText.setAttribute('role', 'status');
-        loadingText.innerHTML = 'Loading...';
-
-        loadingLogo.setAttribute('class', 'spinner-border ms-auto');
-        loadingLogo.setAttribute('aria-hidden', 'true');
-        
-        // add elements to page.
-        loadingDiv.appendChild(loadingText);
-        loadingDiv.appendChild(loadingLogo);
-        document.getElementById('loadingContainer').appendChild(loadingDiv);// add to doc
-    }
-    else{
-        document.getElementById('loadingContainer').innerHTML = '';
-    }
-}
-
-
-async function getStackOverflowData(page = 1){
-    // if no elements, then inform user and exit.
-    if(has_more === false){ // could be null, so i have to do this.
-        
-    }
-
-    // might change this is vscode settings you implement later...
-    const order = 'desc'; // desc, asc...
-    const sort = 'relevance'; // relevance, activity, votes, creation...
-    const pageSize = 10;
-    ////////////////////////////////////////////////////////////////
-
-    // set hash to default page, because it must always be set.
-    location.hash = (page === 1) ? 1 : page;
-
-    toggleLoading(true);
-
-    const searchAPI = 'https://api.stackexchange.com/2.3/search?page='+ page +'&pagesize='+ pageSize +'&order='+ 
-                        order +'&sort='+ sort +'&intitle='+ searchInput.value +'&site=stackoverflow&filter=!T3AudpgBenaj(RyF)D';
-    let result = await fetch(searchAPI);
-    let jsonData = await result.json();
-    let items = jsonData.items;
-
-    // set has more for next time.
-    has_more = jsonData.has_more;
-
-    console.log(jsonData);
-
-    // clear old search value. double search might happend.
-    document.getElementById('accordionFlushDiv').innerHTML = '';
-
-    for(let i = 0; i < items.length; i++){
-        createResultHTML(items[i], i);
-    }
-
-    if(!items.length){ // length == 0
-        createErrorHTML('No Search results found for : "'+ searchInput.value + '"');
-    }
-
-    var codes = document.querySelectorAll('pre > code');
-    for(let i = 0; i < codes.length; i++){
-        codes[i].parentNode.after(getCopyButton()); // not working yet.
-    }
-
-    toggleLoading(false);
-
-    createPaginationHTML(currentPage = page);// change this for page 2 to n.
-
-}
-
-function getCopyButton(){
-    var button = document.createElement('button');
-    button.setAttribute('class', 'btn btn-primary');
-    button.innerHTML = 'Copy Code';
-
-    return button;
-}
-
-function addCodeStyles(){
-    var pre = document.querySelectorAll('pre');
-    for(let i = 0; i < pre.length; i++){
-        pre[i].style.backgroundColor = 'lightGrey';
-    }
-}
-
-function createResultHTML(question, counter){
-
-    var dataTarget = 'flush-collapse' + counter;
-    var result = renderQuestionHTML(question.title, question.body, dataTarget);
-
-    var accordionDiv = document.getElementById('accordionFlushDiv');
-
-    var newDiv = document.createElement('div');
-    newDiv.innerHTML = result;
-    accordionDiv.appendChild(newDiv);
-
-    addCodeStyles(); // add some styles.
-}
-
-function createPaginationHTML(currentPage, maxPages = 10){
-    /**
-     * pagination copied from boostrap 5 code examples, and recreated using code.
-     */
-    var ul = document.getElementById('paginationUL');
-    ul.innerHTML = ''; // clear previous elements. 
-    
-    var pageCounter = 1;
-    var linkClass = 'page-link fs-3';
-    var liClass = null;
-    
-    for(pageCounter = 1; pageCounter <= maxPages; pageCounter++){
-        //condition ? exprIfTrue : exprIfFalse
-        liClass = (pageCounter === currentPage) ? 'page-item active' : 'page-item';
-        
-        createLI(ul, liClass, linkClass, pageCounter);
-
-    }
-
-    // nested function to create an li element.
-    function createLI(pageUL, liClass, aClass, pageCounter, linkValue = null){
-        var li = document.createElement('li');
-        li.setAttribute('class', liClass);
-        
-        var a = document.createElement('a');
-        a.setAttribute('class', aClass);
-
-        if(linkValue === null){ //not empty. so fill value.
-            a.innerHTML = pageCounter;
-            a.setAttribute('href', '#' + pageCounter);
-            a.addEventListener('click', function(){
-                getStackOverflowData(pageCounter); // //must build a function that does this.
-            });
+        if(searchInputValut.trim().length === 0){
+            createErrorHTML('Error: Search Box Cannot Be Empty!');
+            return;
         }
-        else{// TODO: this is for 'Next' or 'Previous' buttons, for later.
-            a.innerHTML = linkValue; 
+        clearErrorHTML();
+        
+        var jsonData = await getStackOverflowData(searchInputValut);
+        has_more = jsonData.has_more;
+        var items = jsonData.items; // this might increase later. > 100 items. 
+        console.log(jsonData);
+
+        if(items.length === 0){
+            var message = '<h1>Error: No Search Results Found For Input: "'+ searchInputValut + '"</h1>';
+            createErrorHTML(message);
+            return;
+        }
+        clearErrorHTML();
+
+        let container = $('#pagination');
+        container.pagination({
+            pageSize: 5,
+            showGoInput: true,
+            showGoButton: true,
+            dataSource: items,
+            callback: function (data, pagination) {
+                var html = template(data);
+                $("#accordionFlushDiv").html(html);
+                
+                // call more functions.
+                addCodeStyles(); 
+                addCopyButton();// add onclick on all buttons later.  
+
+                console.log('loging data');
+                console.log(data);       
+            }, 
+            beforePaging: function(value){
+                //TODO; later, use this if you want more that 10 results. 
+                //alert(value); // working...
+            }
+        });
+    }
+
+    async function getStackOverflowData(searchInput, page = 1){
+        var link = 'https://api.stackexchange.com/2.3/search?page='+ page +'&pageSize=100'+ '' 
+                    +'&order=desc&sort=relevance&intitle='+ searchInput +'&'+ '' 
+                    +'site=stackoverflow&filter=!*Mg4PjfgUgqOW6wX';
+        let result = await fetch(link);
+        let jsonData = await result.json();
+        return jsonData; // get has_more and items variables
+    }
+
+    function getAnswers(answers){//here...
+        var result = '';
+        
+        for(var j = 0; j < answers.length; j++){// foreach answer
+            var ans = answers[j];
+
+            var textCSS = ans.is_accepted ? 'text-bg-success' : 'text-bg-secondary';
+            var borderCSS = ans.is_accepted ? 'border-success': 'border-danger';
+            var btnStatus = ans.is_accepted ? 'btn-success': 'btn-secondary';
+            var icon = ans.is_accepted ? getIcon() : '';
+            result += answerTemplate(ans.body, textCSS, borderCSS, btnStatus, icon, j + 1);
+        }
+
+        return result;
+    }
+
+    function template(items){
+        var html = '';
+        for(var i = 0; i < items.length; i++){
+            var dataTarget = 'flush-collapse' + i;
+            var answers = getAnswers(items[i].answers);
+            var qt = questionTemplate(items[i].title, items[i].body, dataTarget, items[i].link, answers);
+            html += qt;
         }
         
-        li.appendChild(a);
-        pageUL.appendChild(li);
+        return html;
     }
-}
 
-function renderQuestionHTML(title, text, dataTarget){
-    return `
-         <div class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button collapsed bg-info-subtle" type="button" data-bs-toggle="collapse" data-bs-target="#`+ dataTarget +`" aria-expanded="false" aria-controls="flush-collapseOne">
-                  `+ title +`
-                </button>
-              </h2>
-              <div id="`+ dataTarget +`" class="accordion-collapse collapse" data-bs-parent="#accordionFlushDiv">
-                <div class="accordion-body">
+    function addCodeStyles(){
+        var pre = document.querySelectorAll('pre');
+        for(let i = 0; i < pre.length; i++){
+            pre[i].style.backgroundColor = 'lightGrey';
+        }
+    }
 
-                    <div class="card" >
-                        <h5 class="card-header">Question</h5>
-                        <div class="card-body">
-                            <h5 class="card-title">`+ title +`</h5>
-                            <p class="card-text">
-                                `+ text +`
-                            </p>
-                            <a href="#" class="card-link">Card link</a>
+    function addCopyButton(){
+        var codes = document.querySelectorAll('pre > code');
+        for(let i = 0; i < codes.length; i++){
+            var button = document.createElement('button');
+            button.setAttribute('class', 'btn btn-secondary');
+            button.innerHTML = 'Copy Code';
+            codes[i].parentNode.after(button); // not working yet.
+        }
+    }
+
+    //no search results, and no empty submits. 
+    function createErrorHTML(message){
+        const errorCointainer = document.getElementById('errorCointainer');
+        //empty errorCointainer if its not empty.
+        errorCointainer.innerHTML = '';
+        
+        var errorDiv = document.createElement('div');
+        errorDiv.setAttribute('class', 'alert alert-danger text-center');
+        errorDiv.setAttribute('role', 'alert');
+    
+        errorDiv.innerHTML = message;
+    
+        errorCointainer.appendChild(errorDiv);
+    }
+
+    function clearErrorHTML(){
+        const errorCointainer = document.getElementById('errorCointainer');
+        errorCointainer.innerHTML = '';
+    }
+
+
+    function questionTemplate(title, text, dataTarget, link, answers){
+        return `
+             <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-info-subtle" type="button" data-bs-toggle="collapse" data-bs-target="#`+ dataTarget +`" aria-expanded="false" aria-controls="flush-collapseOne">
+                        `+ title +`
+                        </button>
+                    </h2>
+                    <div id="`+ dataTarget +`" class="accordion-collapse collapse" data-bs-parent="#accordionFlushDiv">
+                        <div class="accordion-body">
+        
+                            <div class="card" >
+                                <h5 class="card-header">Question</h5>
+                                <div class="card-body">
+                                    <h5 class="card-title">`+ title +`</h5>
+                                    <p class="card-text">
+                                        `+ text +`
+                                    </p>
+                                    <a href="`+ link +`" class="card-link" target='_blank'>
+                                        View Original Question On StackOverflow
+                                    </a>
+                                </div>
+
+                                <div id="answerContainer">
+                                    `+ answers +`
+                                </div>                         
+
+                            </div>
+
                         </div>
                     </div>
 
                 </div>
-              </div>
+    `;
+    }
+
+
+    function answerTemplate(text, textStatusCSS, borderStatusCSS, btnStatus, icon = '', counter){
+        return `
+            <div class="card `+ borderStatusCSS +`">
+                <div class="card-header `+ textStatusCSS +`">
+                    <div id="showAnswerButton" class="d-grid gap-2">
+                        <button class="btn `+ btnStatus +`" type="button">
+                            `+ icon +`
+                            Answer `+ counter +`
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <blockquote class="blockquote mb-0">
+                        `+ text +`
+                    </blockquote>
+                </div>
             </div>
-`;
-}
+        `;
+    }
+
+    function getIcon(){
+        return `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </svg>
+        `;
+    }
+
+});
