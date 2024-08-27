@@ -9,6 +9,8 @@ $(document).ready(function(){
     async function searchFormSubmitHandler(event){
         event.preventDefault();
 
+        $('#loadingContainer').append('<p class="display-1 text-center"> Loading ...</p>');
+
         var searchInputValut = $('#searchInput').val(); // fix no search result.
 
         if(searchInputValut.trim().length === 0){
@@ -16,7 +18,7 @@ $(document).ready(function(){
             return;
         }
         clearErrorHTML();
-        
+
         var jsonData = await getStackOverflowData(searchInputValut);
         has_more = jsonData.has_more;
         var items = jsonData.items; // this might increase later. > 100 items. 
@@ -37,12 +39,15 @@ $(document).ready(function(){
             showGoInput: true,
             showGoButton: true,
             dataSource: items,
+            location: 'items',
             callback: function (data, pagination) {
                 var html = template(data);
                 $("#accordionFlushDiv").html(html);
 
                 addCodeStyles(); 
-                addCopyButton();// add onclick on all buttons later.    
+                addCopyButton();// add onclick on all buttons later.   
+                
+                $('#loadingContainer').html(''); 
             }
         });
     }
