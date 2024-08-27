@@ -1,5 +1,6 @@
-2. show answers (user clicks button to view anwer, then each click loads one answer.)
-   use jQuery slide down (for the answers).
+1. add questionIDs and answerIDs to copy buttons. 
+
+1. Store the answers and continue with vscode extension.
 
 Bonus. 
 1. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 
