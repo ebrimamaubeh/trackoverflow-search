@@ -42,7 +42,7 @@ $(document).ready(function(){
                 $("#accordionFlushDiv").html(html);
 
                 addCodeStyles(); 
-                addCopyButton();   
+                addCopyButton();// add onclick on all buttons later.    
             }
         });
     }
