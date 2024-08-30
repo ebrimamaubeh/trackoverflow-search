@@ -118,7 +118,7 @@ $(document).ready(function(){
                     var question_id = codes[i].parentNode.parentNode.id;
                     console.log('quesiton_id: ', question_id);
 
-                    alert('copied.');
+                    alert('copied.');//here...
                 });
             }
 
@@ -128,7 +128,7 @@ $(document).ready(function(){
                     var answer_id = codes[i].parentNode.parentNode.parentNode.id;
                     console.log('answer_id: ', answer_id);
 
-                    alert('copied.');
+                    alert('copied.'); // here...
                 });
             }
 

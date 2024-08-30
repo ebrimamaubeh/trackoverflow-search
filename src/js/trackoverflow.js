@@ -2,53 +2,50 @@ $(document).ready(function(){
 
     // global variables. 
     var has_more = null;
-
     $('#searchForm').submit(searchFormSubmitHandler);
     
 
     async function searchFormSubmitHandler(event){
         event.preventDefault();
 
+        $('#loadingContainer').append('<p class="display-1 text-center"> Loading ...</p>');
+
         var searchInputValut = $('#searchInput').val(); // fix no search result.
 
         if(searchInputValut.trim().length === 0){
             createErrorHTML('Error: Search Box Cannot Be Empty!');
+            $('#loadingContainer').html('');
             return;
         }
         clearErrorHTML();
-        
+
         var jsonData = await getStackOverflowData(searchInputValut);
         has_more = jsonData.has_more;
         var items = jsonData.items; // this might increase later. > 100 items. 
-        console.log(jsonData);
 
         if(items.length === 0){
             var message = '<h1>Error: No Search Results Found For Input: "'+ searchInputValut + '"</h1>';
             createErrorHTML(message);
+            $('#loadingContainer').html('');
             return;
         }
         clearErrorHTML();
 
+        //sometimes, there is always an error when loading certain pages
+        //it's a bug with the pagination extension.
         let container = $('#pagination');
         container.pagination({
-            pageSize: 5,
+            pageSize: 5, // if hich, you will get a loading error.
             showGoInput: true,
             showGoButton: true,
             dataSource: items,
             callback: function (data, pagination) {
                 var html = template(data);
                 $("#accordionFlushDiv").html(html);
-                
-                // call more functions.
-                addCodeStyles(); 
-                addCopyButton();// add onclick on all buttons later.  
 
-                console.log('loging data');
-                console.log(data);       
-            }, 
-            beforePaging: function(value){
-                //TODO; later, use this if you want more that 10 results. 
-                //alert(value); // working...
+                addCodeStyles();
+                addCopyButton();// add onclick on all buttons later.
+                $('#loadingContainer').html(''); 
             }
         });
     }
@@ -72,7 +69,8 @@ $(document).ready(function(){
             var borderCSS = ans.is_accepted ? 'border-success': 'border-danger';
             var btnStatus = ans.is_accepted ? 'btn-success': 'btn-secondary';
             var icon = ans.is_accepted ? getIcon() : '';
-            result += answerTemplate(ans.body, textCSS, borderCSS, btnStatus, icon, j + 1);
+            
+            result += answerTemplate(ans.body, textCSS, borderCSS, btnStatus, icon, j + 1, ans.answer_id);
         }
 
         return result;
@@ -83,7 +81,8 @@ $(document).ready(function(){
         for(var i = 0; i < items.length; i++){
             var dataTarget = 'flush-collapse' + i;
             var answers = getAnswers(items[i].answers);
-            var qt = questionTemplate(items[i].title, items[i].body, dataTarget, items[i].link, answers);
+            var questionID = items[i].question_id;
+            var qt = questionTemplate(items[i].title, items[i].body, dataTarget, items[i].link, answers, questionID);
             html += qt;
         }
         
@@ -102,9 +101,48 @@ $(document).ready(function(){
         for(let i = 0; i < codes.length; i++){
             var button = document.createElement('button');
             button.setAttribute('class', 'btn btn-secondary');
+
             button.innerHTML = 'Copy Code';
-            codes[i].parentNode.after(button); // not working yet.
+            // codes[i].parentNode.after(button); // not working yet.
+            codes[i].after(button);
+
+            //parent -> parent = card body.
+            //this will be null if it's an answer.
+            var question_div = codes[i].parentNode.parentNode;
+            var answer_div = codes[i].parentNode.parentNode.parentNode;
+
+            if(question_div.id){
+                button.setAttribute('id', 'questionButton_' + i);
+                $('#questionButton_'+i).click(function(){
+                    // you must get the id this way, otherwise it will not work.
+                    var question_id = codes[i].parentNode.parentNode.id;
+                    console.log('quesiton_id: ', question_id);
+
+                    alert('copied.');//here...
+                });
+            }
+
+            if(answer_div.id){
+                button.setAttribute('id', 'answerButton_' + i);
+                $('#answerButton_'+i).click(function(){
+                    var answer_id = codes[i].parentNode.parentNode.parentNode.id;
+                    console.log('answer_id: ', answer_id);
+
+                    alert('copied.'); // here...
+                });
+            }
+
         }
+    }
+
+    //TODO: create get answer and question methods. 
+    function saveQuestionToDB(question_id){
+        // url for solution
+        // https://api.stackexchange.com/docs/questions-by-answer-ids
+    }
+    function saveAnswerToDB(answer_id){
+        // url for solution
+        // https://api.stackexchange.com/docs/answers-by-ids
     }
 
     //no search results, and no empty submits. 
@@ -123,12 +161,11 @@ $(document).ready(function(){
     }
 
     function clearErrorHTML(){
-        const errorCointainer = document.getElementById('errorCointainer');
-        errorCointainer.innerHTML = '';
+        $('#errorCointainer').html('');
     }
 
 
-    function questionTemplate(title, text, dataTarget, link, answers){
+    function questionTemplate(title, text, dataTarget, link, answers, questionID){
         return `
              <div class="accordion-item">
                     <h2 class="accordion-header">
@@ -141,7 +178,7 @@ $(document).ready(function(){
         
                             <div class="card" >
                                 <h5 class="card-header">Question</h5>
-                                <div class="card-body">
+                                <div class="card-body" id="`+ questionID +`">
                                     <h5 class="card-title">`+ title +`</h5>
                                     <p class="card-text">
                                         `+ text +`
@@ -165,7 +202,7 @@ $(document).ready(function(){
     }
 
 
-    function answerTemplate(text, textStatusCSS, borderStatusCSS, btnStatus, icon = '', counter){
+    function answerTemplate(text, textStatusCSS, borderStatusCSS, btnStatus, icon = '', counter, answerID){
         return `
             <div class="card `+ borderStatusCSS +`">
                 <div class="card-header `+ textStatusCSS +`">
@@ -176,7 +213,7 @@ $(document).ready(function(){
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body" id="`+ answerID +`">
                     <blockquote class="blockquote mb-0">
                         `+ text +`
                     </blockquote>
