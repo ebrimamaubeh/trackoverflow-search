@@ -2,7 +2,6 @@ $(document).ready(function(){
 
     // global variables. 
     var has_more = null;
-
     $('#searchForm').submit(searchFormSubmitHandler);
     
 
@@ -118,6 +117,8 @@ $(document).ready(function(){
                     // you must get the id this way, otherwise it will not work.
                     var question_id = codes[i].parentNode.parentNode.id;
                     console.log('quesiton_id: ', question_id);
+
+                    alert('copied.');
                 });
             }
 
@@ -126,10 +127,22 @@ $(document).ready(function(){
                 $('#answerButton_'+i).click(function(){
                     var answer_id = codes[i].parentNode.parentNode.parentNode.id;
                     console.log('answer_id: ', answer_id);
+
+                    alert('copied.');
                 });
             }
 
         }
+    }
+
+    //TODO: create get answer and question methods. 
+    function saveQuestionToDB(question_id){
+        // url for solution
+        // https://api.stackexchange.com/docs/questions-by-answer-ids
+    }
+    function saveAnswerToDB(answer_id){
+        // url for solution
+        // https://api.stackexchange.com/docs/answers-by-ids
     }
 
     //no search results, and no empty submits. 

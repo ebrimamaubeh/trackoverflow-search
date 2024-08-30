@@ -1,5 +1,3 @@
-1. add questionIDs and answerIDs to copy buttons. 
-
 1. Store the answers and continue with vscode extension.
 
 Bonus. 
@@ -7,3 +5,10 @@ Bonus.
    specific bug errors. 
 
 2. make max pagination dynamic.
+
+3. sometimes the page will do a refresh when you click a page number, i think its because of the content
+   of the post/answer. if you can fix this good, otherwise just leave it.
+
+4. You can use Machine Learning later to analyse the content, and see if its has changed. 
+   YOu can also use Tensoflow. 
+
