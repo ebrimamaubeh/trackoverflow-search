@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 		);
 
         // Get path to resource on disk
-        const scriptPath = vscode.Uri.joinPath(context.extensionUri, 'js/', 'trackoverflow.js');
+        const scriptPath = vscode.Uri.joinPath(context.extensionUri, 'src/js/', 'trackoverflow.js');
         const scriptSrc = panel.webview.asWebviewUri(scriptPath);
 
 		panel.webview.html = getHtmlContent(scriptSrc);
@@ -33,70 +33,58 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 
+// this code is from index.js
 function getHtmlContent(scriptSrc: vscode.Uri){
 	return `
-	<!doctype html>
-<html lang="en">
+        <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>pagination example</title>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.72.0">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+                    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
+                
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+                    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
+                    crossorigin="anonymous">
+                </script>
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
-        crossorigin="anonymous">
-    </script>
-</head>
+            </head>
+            <body>
 
-<body>
-    <div class="container">
+                <div class="container">
 
-        <nav class="navbar navbar-light bg-light sticky-top">
-            <form class="form-inline col-md-12">
-                <input class="form-control form-control-lg" type="search" placeholder="Search StackOverflow" aria-label="Search">
-            </form>
-        </nav>
+                    <nav class="navbar navbar-light bg-light sticky-top">
+                        <form id="searchForm" class="form-inline col-md-12">
+                            <input id="searchInput" class="form-control form-control-lg" type="search" placeholder="Search StackOverflow" aria-label="Search">
+                        </form>
+                    </nav>
 
-        <hr>
-        <div class="accordion accordion-flush" id="accordionFlushExample">
-            <div class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                  Accordion Item #1
-                </button>
-              </h2>
-              <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body">
+                    <hr>
 
-                    <div class="card" >
-                        <h5 class="card-header">Featured</h5>
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">
-                                Some quick example text to build on the card title and make up the bulk 
-                                of the card's content.
-                            </p>
-                            <a href="#" class="card-link">Card link</a>
-                        </div>
-                    </div>
+                    <div id="errorCointainer"></div>
+
+                    <div id="loadingContainer"></div>
+
+                    <div class="accordion accordion-flush" id="accordionFlushDiv"></div>
+
+                    <hr>
+
+                    <div id="pagination" class="d-flex justify-content-lg-center"></div>
+
+                    <hr>
+
+                    <div id="answerCointainer"></div>
+
 
                 </div>
-              </div>
-            </div>
-         
-        </div>
 
-    </div>
-
-    <script src="${scriptSrc}"></script>
-</body>
-
-</html>
-	`;
+                <script src="${scriptSrc}"></script>
+            </body>
+        </html>
+    `;
 }

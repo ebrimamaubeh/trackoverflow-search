@@ -2,10 +2,10 @@ $(document).ready(function(){
 
     // global variables. 
     var has_more = null;
-    $('#searchForm').submit(searchFormSubmitHandler);
-    
+    $('#searchForm').submit(enterButtonPressed);
 
-    async function searchFormSubmitHandler(event){
+    
+    async function enterButtonPressed(event){
         event.preventDefault();
 
         $('#loadingContainer').append('<p class="display-1 text-center"> Loading ...</p>');
@@ -116,9 +116,7 @@ $(document).ready(function(){
                 $('#questionButton_'+i).click(function(){
                     // you must get the id this way, otherwise it will not work.
                     var question_id = codes[i].parentNode.parentNode.id;
-                    console.log('quesiton_id: ', question_id);
-
-                    alert('copied.');//here...
+                    console.log('copied, quesiton_id: ', question_id); // here...
                 });
             }
 
@@ -126,9 +124,7 @@ $(document).ready(function(){
                 button.setAttribute('id', 'answerButton_' + i);
                 $('#answerButton_'+i).click(function(){
                     var answer_id = codes[i].parentNode.parentNode.parentNode.id;
-                    console.log('answer_id: ', answer_id);
-
-                    alert('copied.'); // here...
+                    console.log('copied, answer_id: ', answer_id); // here...
                 });
             }
 
