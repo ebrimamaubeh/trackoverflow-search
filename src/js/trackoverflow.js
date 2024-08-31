@@ -2,6 +2,9 @@ $(document).ready(function(){
 
     // global variables. 
     var has_more = null;
+    const vscode = acquireVsCodeApi();
+
+
     $('#searchForm').submit(enterButtonPressed);
 
     
@@ -116,7 +119,9 @@ $(document).ready(function(){
                 $('#questionButton_'+i).click(function(){
                     // you must get the id this way, otherwise it will not work.
                     var question_id = codes[i].parentNode.parentNode.id;
-                    console.log('copied, quesiton_id: ', question_id); // here...
+                    var code = codes[i].parentNode.firstChild.innerHTML;
+                    copyToClipboard(code);
+                    sendPostMessageToExtension(question_id, 'question', code);
                 });
             }
 
@@ -124,21 +129,72 @@ $(document).ready(function(){
                 button.setAttribute('id', 'answerButton_' + i);
                 $('#answerButton_'+i).click(function(){
                     var answer_id = codes[i].parentNode.parentNode.parentNode.id;
-                    console.log('copied, answer_id: ', answer_id); // here...
+                    var code = codes[i].parentNode.firstChild.innerHTML;
+                    copyToClipboard(code);
+                    sendPostMessageToExtension(answer_id, 'answer', code);
                 });
             }
 
-        }
-    }
+            function copyToClipboard(value){
+                var e = document.createElement('textarea');
+                e.value = value;
+                e.setAttribute('readonly', '');
+                document.body.appendChild(e);
+                e.select();
+                document.execCommand('copy');
+                document.body.removeChild(e);
+            }
 
-    //TODO: create get answer and question methods. 
-    function saveQuestionToDB(question_id){
-        // url for solution
-        // https://api.stackexchange.com/docs/questions-by-answer-ids
-    }
-    function saveAnswerToDB(answer_id){
-        // url for solution
-        // https://api.stackexchange.com/docs/answers-by-ids
+            /**
+             * 
+             * @param {question or answer id} id 
+             * @param {indicate if it's a question or answer} stringType  
+             * @param {the code copied by the user.} code 
+             */
+            function sendPostMessageToExtension(id, stringType, code){
+                //source: https://api.stackexchange.com/docs/questions-by-ids
+                //question id = 1077347
+                const questionURL = 'https://api.stackexchange.com/2.3/questions/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNPI7A';
+                
+                //source: https://api.stackexchange.com/docs/answers-by-ids
+                //answer id = 1077349
+                const answerURL = 'https://api.stackexchange.com/2.3/answers/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNdWme';
+                
+                var correctURL = stringType === 'question' ? questionURL : answerURL;
+
+                fetch(correctURL)
+                    .then(response => response.json())
+                    .then(data => {
+                        var result = data.items[0]; 
+                        vscode.postMessage({
+                            id: id, 
+                            type: stringType,
+                            dateCopied: Date.now(),
+                            lastEdited: result.last_edit_date,
+                            code: code, 
+                            post: result.body,
+                        });
+                });
+
+            }
+
+            // get question or answer
+            function getQuestionOrAnswer(id, stringType){ // here...
+                //source: https://api.stackexchange.com/docs/questions-by-ids
+                //id = 1077347
+                const questionURL = 'https://api.stackexchange.com/2.3/questions/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNPI7A';
+                
+                //source: https://api.stackexchange.com/docs/answers-by-ids
+                //id = 1077349
+                const answerURL = 'https://api.stackexchange.com/2.3/answers/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNdWme';
+                
+                var correctURL = stringType === 'question' ? questionURL : answerURL;
+
+                
+
+            }
+
+        }
     }
 
     //no search results, and no empty submits. 

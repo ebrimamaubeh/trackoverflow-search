@@ -24,6 +24,44 @@ export function activate(context: vscode.ExtensionContext) {
 
 		panel.webview.html = getHtmlContent(scriptSrc);
 
+        // show one notification at a time..... maybe I should do this in js.
+        // then use switch cases in message below.
+
+        /**
+         * You shoud have: 
+         * 1. trackoverflow-search
+         * 2. trackoverflow-storage 
+         * 
+         * you should have two commands. one for searching other for tracking.
+         * but everytime they copy, you notify them, but keep it tracked.
+         * they can see all their tracked messages, and manage them.
+         */
+
+
+        /////////////////////////////////////////////////////////
+         // Handle messages from the webview
+        panel.webview.onDidReceiveMessage(
+            message => {
+                const value = {
+                    id: message.id, 
+                    type: message.stringType,
+                    dateCopied: message.dateCopied,
+                    lastEdited: message.lastEdited,
+                    code: message.code, 
+                    post: message.post,
+                    seen: false // has the user seen this notification. if so, don't show it.
+                };
+
+                const key = value.id; // unique. 
+                context.workspaceState.update(key, value);
+
+                vscode.window.showInformationMessage('message copied'); // you should show this in html.
+            },
+            undefined,
+            context.subscriptions
+        );
+        /////////////////////////////////////////////////////////
+
 	});
 
 	context.subscriptions.push(trackOverflowDisposable);
