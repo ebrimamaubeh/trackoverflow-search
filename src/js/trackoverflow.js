@@ -3,10 +3,8 @@ $(document).ready(function(){
     // global variables. 
     var has_more = null;
     const vscode = acquireVsCodeApi();
-
-
+    
     $('#searchForm').submit(enterButtonPressed);
-
     
     async function enterButtonPressed(event){
         event.preventDefault();
@@ -42,12 +40,12 @@ $(document).ready(function(){
             showGoInput: true,
             showGoButton: true,
             dataSource: items,
-            callback: function (data, pagination) {
+            callback: async function (data, pagination) {
                 var html = template(data);
                 $("#accordionFlushDiv").html(html);
 
                 addCodeStyles();
-                addCopyButton();// add onclick on all buttons later.
+                await addCopyButton();// add onclick on all buttons later.
                 $('#loadingContainer').html(''); 
             }
         });
@@ -72,8 +70,8 @@ $(document).ready(function(){
             var borderCSS = ans.is_accepted ? 'border-success': 'border-danger';
             var btnStatus = ans.is_accepted ? 'btn-success': 'btn-secondary';
             var icon = ans.is_accepted ? getIcon() : '';
-            
-            result += answerTemplate(ans.body, textCSS, borderCSS, btnStatus, icon, j + 1, ans.answer_id);
+
+            result += answerTemplate(ans.body, textCSS, borderCSS, btnStatus, icon, j + 1, ans.answer_id, answers[j].link);
         }
 
         return result;
@@ -114,24 +112,35 @@ $(document).ready(function(){
             var question_div = codes[i].parentNode.parentNode;
             var answer_div = codes[i].parentNode.parentNode.parentNode;
 
+            // here... store these values in other side. 
+
+            // console.log('before');
+            // console.log('question: ', question_div.parentNode.parentNode);
+            // console.log('value: ', (question_div.parentNode.parentNode).children[3]);
+            // console.log('answer: ', answer_div.parentNode);
+            // console.log('lastChild: ', answer_div.parentNode.children[3]);
+            // console.log('after');
+
             if(question_div.id){
                 button.setAttribute('id', 'questionButton_' + i);
-                $('#questionButton_'+i).click(function(){
+                $('#questionButton_'+i).click(async function(){
                     // you must get the id this way, otherwise it will not work.
                     var question_id = codes[i].parentNode.parentNode.id;
                     var code = codes[i].parentNode.firstChild.innerHTML;
+                    var link = (question_div.parentNode.parentNode).children[3].value;
                     copyToClipboard(code);
-                    sendPostMessageToExtension(question_id, 'question', code);
+                    await sendPostMessageToExtension(question_id, 'question', code, link);
                 });
             }
 
             if(answer_div.id){
                 button.setAttribute('id', 'answerButton_' + i);
-                $('#answerButton_'+i).click(function(){
+                $('#answerButton_'+i).click(async function(){
                     var answer_id = codes[i].parentNode.parentNode.parentNode.id;
                     var code = codes[i].parentNode.firstChild.innerHTML;
+                    var link = answer_div.parentNode.children[3].value;
                     copyToClipboard(code);
-                    sendPostMessageToExtension(answer_id, 'answer', code);
+                    await sendPostMessageToExtension(answer_id, 'answer', code, link);
                 });
             }
 
@@ -151,46 +160,30 @@ $(document).ready(function(){
              * @param {indicate if it's a question or answer} stringType  
              * @param {the code copied by the user.} code 
              */
-            function sendPostMessageToExtension(id, stringType, code){
-                //source: https://api.stackexchange.com/docs/questions-by-ids
-                //question id = 1077347
-                const questionURL = 'https://api.stackexchange.com/2.3/questions/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNPI7A';
-                
-                //source: https://api.stackexchange.com/docs/answers-by-ids
-                //answer id = 1077349
-                const answerURL = 'https://api.stackexchange.com/2.3/answers/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNdWme';
-                
-                var correctURL = stringType === 'question' ? questionURL : answerURL;
+            async function sendPostMessageToExtension(id, stringType, code, link){
+                //answer id = 1077349 
+                const post_url = 'https://api.stackexchange.com/2.3/posts/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNQ6rQ';
 
-                fetch(correctURL)
-                    .then(response => response.json())
-                    .then(data => {
-                        var result = data.items[0]; 
-                        vscode.postMessage({
-                            id: id, 
-                            type: stringType,
-                            dateCopied: Date.now(),
-                            lastEdited: result.last_edit_date,
-                            code: code, 
-                            post: result.body,
-                        });
+                ////////////////////////////////////////
+                //an error might accure. do with try catch later.
+                let fetchResult = await fetch(post_url);
+                let data = await fetchResult.json();
+                var post = data.items[0]; 
+
+                console.log(post);
+                
+                vscode.postMessage({
+                    command: 'copy', // code has been copied.
+                    id: id, 
+                    dateCopied: Date.now(),
+                    lastEdited: post.last_edit_date,
+                    code: code, 
+                    post: post.body,
+                    link: link, // question or answer link.
+                    seen: false, 
+                    isHidden: false
                 });
-
-            }
-
-            // get question or answer
-            function getQuestionOrAnswer(id, stringType){ // here...
-                //source: https://api.stackexchange.com/docs/questions-by-ids
-                //id = 1077347
-                const questionURL = 'https://api.stackexchange.com/2.3/questions/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNPI7A';
-                
-                //source: https://api.stackexchange.com/docs/answers-by-ids
-                //id = 1077349
-                const answerURL = 'https://api.stackexchange.com/2.3/answers/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNdWme';
-                
-                var correctURL = stringType === 'question' ? questionURL : answerURL;
-
-                
+                ///////////////////////////////////////
 
             }
 
@@ -238,6 +231,7 @@ $(document).ready(function(){
                                     <a href="`+ link +`" class="card-link" target='_blank'>
                                         View Original Question On StackOverflow
                                     </a>
+                                    <input id='x' type='hidden' value='`+ link +`'/>
                                 </div>
 
                                 <div id="answerContainer">
@@ -245,7 +239,6 @@ $(document).ready(function(){
                                 </div>                         
 
                             </div>
-
                         </div>
                     </div>
 
@@ -254,7 +247,7 @@ $(document).ready(function(){
     }
 
 
-    function answerTemplate(text, textStatusCSS, borderStatusCSS, btnStatus, icon = '', counter, answerID){
+    function answerTemplate(text, textStatusCSS, borderStatusCSS, btnStatus, icon = '', counter, answerID, link){
         return `
             <div class="card `+ borderStatusCSS +`">
                 <div class="card-header `+ textStatusCSS +`">
@@ -270,6 +263,8 @@ $(document).ready(function(){
                         `+ text +`
                     </blockquote>
                 </div>
+                <a href='`+ link +`'> Link to Answer on StackOverflow </a>
+                <input type='hidden' value='`+ link +`'/>
             </div>
         `;
     }
