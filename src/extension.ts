@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { TrackOverflowPost, createTrackOverflowPost } from './trackOverflowData';
 import * as Helpers from './helpers';
 
+
 // Global variable to store the interval ID
 let intervalId: NodeJS.Timeout | undefined;
 
@@ -88,23 +89,71 @@ export function activate(context: vscode.ExtensionContext) {
         const scriptPath = vscode.Uri.joinPath(context.extensionUri, 'src/js/', 'dataStorage.js');
         const scriptSrc = panel.webview.asWebviewUri(scriptPath);
 
+        // TODO: pass posts through getDataPageHTML().  and remove postMessge.
         panel.webview.html = getDataPageHTML(scriptSrc);
 
         const hasStoredData = Helpers.hasData(context);
         if(hasStoredData){
+            //testing...
+            const posts_ids: string = Helpers.getStoredDataPostIDs(context);
+            const local_posts = Helpers.getAllStoredPosts(context);
+
+            var updated_posts = Helpers.getAllUpdatedStoredPosts(context);
+
+            //testing...
             //TODO: continue here... because you must check the time stored, and if changes are made
             // then get those posts.
             // const post_ids = getStoredDataPostIDs(context);
             const links: string[] = Helpers.getStoredDataLinks(context);
-            panel.webview.postMessage({links: links});
+            panel.webview.postMessage({
+                has_items: true,
+                links: links, 
+                posts_ids: posts_ids, 
+                local_posts: local_posts, 
+                updated_posts: updated_posts
+            });
         }else{
-            panel.webview.postMessage({links: []});
+            panel.webview.postMessage({has_items: false});
         }
 
     });
 
+    const testingLinksDisposable = vscode.commands.registerCommand('trackoverflow-search.testingLinks', () => {
+        // Create a webview panel
+        const panel = vscode.window.createWebviewPanel(
+            'extension.webview',
+            'My Webview',
+            vscode.ViewColumn.Two,
+            {
+                enableScripts: true,
+                localResourceRoots: [vscode.Uri.file(context.extensionPath + '/media')]
+            }
+        );
+
+        // Set the webview's HTML content
+        panel.webview.html = getLinksHTML();
+
+        // Handle messages from the webview
+        panel.webview.onDidReceiveMessage(message => {
+            switch (message.command) {
+            case 'openLink':
+                fetch(message.url)
+                .then(response => response.text())
+                .then(content => {
+                    //panel.webview.html = content;
+                    panel.webview.postMessage({ command: 'updateContent', content: content });
+                })
+                .catch(error => {
+                  console.error('Error fetching content:', error);
+                });
+                break;
+            }
+        });
+    });
+
 	context.subscriptions.push(trackOverflowDisposable);
     context.subscriptions.push(trackOverflowStorageDisposable);
+    context.subscriptions.push(testingLinksDisposable);
 }
 
 // This method is called when your extension is deactivated
@@ -113,6 +162,37 @@ export function deactivate() {
     clearInterval(intervalId);
 }
 
+
+function getLinksHTML(){
+    return `<!DOCTYPE html>
+        <html>
+            <head>
+            <title>My Webview</title>
+            </head>
+            <body>
+            <h1>Welcome to my webview!</h1>
+            <p>This is a simple webview with multiple links.</p>
+            <ul>
+                <li><a href="#" onclick="openLink('https://www.example.com')">Example Link 1</a></li>
+                <li><a href="#" onclick="openLink('https://www.example.org')">Example Link 2</a></li>
+                <li><a href="#" onclick="openLink('https://www.example.net')">Example Link 3</a></li>
+            </ul>
+
+            <div id="content"></div>
+
+            <script>
+                const vscode = acquireVsCodeApi();
+
+                function openLink(url) {
+                    // Send a message to the extension to open the link
+                    console.log('the url: ', url)
+                    vscode.postMessage({ command: 'openLink', url: url });
+                }
+   
+            </script>
+            </body>
+        </html>`;
+}
 
 function getHelloWorldHTML(){
     return `
@@ -164,6 +244,11 @@ function getDataPageHTML(scriptSrc: vscode.Uri){
 
             </div>
 
+            <script> 
+                function printHelloWorld(arg) {
+                    console.log("arg = ", arg);
+                }
+            </script>
             <script src="${scriptSrc}"></script>
         </body>
         </html>

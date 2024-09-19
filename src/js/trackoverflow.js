@@ -45,7 +45,7 @@ $(document).ready(function(){
                 $("#accordionFlushDiv").html(html);
 
                 addCodeStyles();
-                await addCopyButton();// add onclick on all buttons later.
+                addCopyButton();// add onclick on all buttons later.
                 $('#loadingContainer').html(''); 
             }
         });
@@ -107,20 +107,10 @@ $(document).ready(function(){
             // codes[i].parentNode.after(button); // not working yet.
             codes[i].after(button);
 
-            //parent -> parent = card body.
             //this will be null if it's an answer.
             var question_div = codes[i].parentNode.parentNode;
             var answer_div = codes[i].parentNode.parentNode.parentNode;
-
-            // here... store these values in other side. 
-
-            // console.log('before');
-            // console.log('question: ', question_div.parentNode.parentNode);
-            // console.log('value: ', (question_div.parentNode.parentNode).children[3]);
-            // console.log('answer: ', answer_div.parentNode);
-            // console.log('lastChild: ', answer_div.parentNode.children[3]);
-            // console.log('after');
-
+           
             if(question_div.id){
                 button.setAttribute('id', 'questionButton_' + i);
                 $('#questionButton_'+i).click(async function(){
@@ -168,6 +158,7 @@ $(document).ready(function(){
                 //an error might accure. do with try catch later.
                 let fetchResult = await fetch(post_url);
                 let data = await fetchResult.json();
+                console.log(data);
                 var post = data.items[0]; 
 
                 console.log(post);

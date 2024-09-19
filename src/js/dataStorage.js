@@ -9,13 +9,13 @@ $(document).ready(function(){
     window.addEventListener('message', listCopiedCodeLinks);
 
 
-    function template(links){
-        console.log(links);
-        //TODO: add links to click.
-        if(links.length > 0){
+    function template(posts){
+        if(posts.length > 0){
             var html = '<ul class="list-group">';
-            for(var i = 0; i < links.length; i++){
-                html += '<li class="list-group-item"> <a href="/"> '+ links[i] +' </a></li>';
+            for(var i = 0; i < posts.length; i++){
+                html += '<li class="list-group-item"> <a href="#" class="posts-list" '+
+                           'id="'+ posts[i].id +'"> '+ posts[i].link
+                        + '</a></li>';
             }
             html += '</ul>';
 
@@ -26,21 +26,43 @@ $(document).ready(function(){
     }
 
     async function listCopiedCodeLinks(event){
-        const links = event.data.links;
+        if(!event.data.has_items){
+            return;
+        }
 
+        // const links = event.data.links;
+        const posts_ids = event.data.posts_ids;
+        const local_posts = event.data.local_posts;
+        var updated_posts = event.data.updated_posts;
+    
         let container = $('#pagination');
         container.pagination({
             pageSize: 10, 
             showGoInput: true,
             showGoButton: true,
-            dataSource: links,
+            dataSource: local_posts,
             callback: function (data) {
                 var html = template(data);
                 $("#linksDiv").html(html);
 
-                $('#loadingContainer').html(''); 
+                $('#loadingContainer').html('');
+
+                // add onclick on first button
+                addOnClickToPostLinks();
             }
         });
+
+        function addOnClickToPostLinks(){
+            const links = document.querySelectorAll('.posts-list');
+            console.log('links:', links);
+            links.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    //event.preventDefault(); // Prevent default link behavior
+                    console.log(`Clicked link with ID: ${link.id}`);
+                });
+            });
+        }
+
 
         // vscode.postMessage({
         //     command: 'dataStorage-html', 

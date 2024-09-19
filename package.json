@@ -16,6 +16,14 @@
       {
         "command": "trackoverflow-search.mainView",
         "title": "TrackOverflow Search"
+      },
+      {
+        "command": "trackoverflow-search.dataStorage",
+        "title": "TrackOverflow Stored Data Q/A"
+      },
+      {
+        "command": "trackoverflow-search.testingLinks",
+        "title": "Testing Links"
       }
     ]
   },
