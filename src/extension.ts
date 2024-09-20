@@ -98,7 +98,7 @@ export function activate(context: vscode.ExtensionContext) {
             const posts_ids: string = Helpers.getStoredDataPostIDs(context);
             const local_posts = Helpers.getAllStoredPosts(context);
 
-            var updated_posts = Helpers.getAllUpdatedStoredPosts(context);
+            var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
 
             //testing...
             //TODO: continue here... because you must check the time stored, and if changes are made

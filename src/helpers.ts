@@ -82,25 +82,23 @@ export async function getAllUpdatedStoredPosts(context: vscode.ExtensionContext)
     let data = (await fetchResult.json()) as ApiResponse; // saw this using gemini.
     var new_posts = data.items;
 
-    console.log('new posts: ', new_posts);
-    console.log('old posts: ', local_posts);
-
-    console.log('testing: ', data.items[0].last_edit_date);
-
     assert(local_posts.length === new_posts.length, 'Posts have a different number');
 
     //check last edited date > date stored.
     var updated_posts = [];
+    var post_counter = 0;
     for(var i = 0; i < local_posts.length; i++){
+        //testing...
+        // not working...
+        // local_posts[i].link = new_posts[i].link;
+        // context.workspaceState.update(local_posts[i].id.toString(), local_posts[i]);
+        //testing...
         if(new_posts[i].last_edit_date > local_posts[i].dateCopied){
-            updated_posts[i] = new_posts[i];
+            updated_posts[post_counter++] = local_posts[i];
         }
     }
 
-    console.log('in function: ', updated_posts);
-
-    return updated_posts;
-
+    return updated_posts; // copy the array. 
 }
 
 export function deleteAllWorkspaceData(context: vscode.ExtensionContext): void {

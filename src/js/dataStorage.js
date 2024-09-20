@@ -34,13 +34,17 @@ $(document).ready(function(){
         const posts_ids = event.data.posts_ids;
         const local_posts = event.data.local_posts;
         var updated_posts = event.data.updated_posts;
+
+        console.log('event.data: ', event.data);
+
+        console.log('updated_posts: ', updated_posts);
     
         let container = $('#pagination');
         container.pagination({
             pageSize: 10, 
             showGoInput: true,
             showGoButton: true,
-            dataSource: local_posts,
+            dataSource: updated_posts,
             callback: function (data) {
                 var html = template(data);
                 $("#linksDiv").html(html);
@@ -54,10 +58,8 @@ $(document).ready(function(){
 
         function addOnClickToPostLinks(){
             const links = document.querySelectorAll('.posts-list');
-            console.log('links:', links);
             links.forEach(link => {
                 link.addEventListener('click', (event) => {
-                    //event.preventDefault(); // Prevent default link behavior
                     console.log(`Clicked link with ID: ${link.id}`);
                 });
             });
