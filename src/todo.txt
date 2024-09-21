@@ -1,4 +1,6 @@
-1. Get answers from storage, and display for the user to see or review.
+1. If the answer is seen, you need to update that. 
+
+2. provide a button to hide the update. hide all revisions if the button is clicked.
 
 Bonus. 
 1. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 

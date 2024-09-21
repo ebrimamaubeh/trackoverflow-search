@@ -13,15 +13,28 @@ let intervalId: NodeJS.Timeout | undefined;
 export function activate(context: vscode.ExtensionContext) {
 
     // Create a background task that runs every 5 munites.
-    intervalId = setInterval(() => {
+    const ONE_SECOND = 1000;
+    const ONE_HOUR = ONE_SECOND * 60 * 60;
+    intervalId = setInterval( async () => {
         /**
          * TODO: Check if there is a message that has not been seen.
          * if one message has not been seen. then show notification where he can see that message
          * not the whole list. this should be done only if you get only one message not seen.
          * default is show him the list.
          */
-        console.log('Background task running... TODO: Later.');
-    }, 5000);
+        const hasUnseenPost = Helpers.hasUnseenPost(context);
+        const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
+        if(hasUnseenPost && hasPostBeenUpdated){
+            const warningMessage = 'Warning: Some Code You Copied Has Changed';
+            const selection = await vscode.window.showWarningMessage(warningMessage,'Show List', 'Ignore');
+            if ((selection !== undefined) && selection !== 'Ignore') {
+                vscode.commands.executeCommand('trackoverflow-search.dataStorage');
+            }
+        }
+        else{
+            console.log('Background task: Post Not Changed Or Updated.');
+        }
+    }, 10000);//TODO: change to one hour.
 
 
 	const commandId = 'trackoverflow-search.mainView';
@@ -43,15 +56,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 		panel.webview.html = getHtmlContent(scriptSrc);
            
-        const hasStoredData = Helpers.hasData(context);
-        if(hasStoredData){
-            const warningMessage = 'Warning: Some Code You Copied Has Changed';
-            const selection = await vscode.window.showWarningMessage(warningMessage,'Show List', 'Ignore');
-            if ((selection !== undefined) && selection !== 'Ignore') {
-                vscode.commands.executeCommand('trackoverflow-search.dataStorage');
-            }
-        }
-
          // Handle messages from the webview
         panel.webview.onDidReceiveMessage(
             message => {

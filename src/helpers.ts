@@ -18,6 +18,19 @@ export function hasData(context: vscode.ExtensionContext){
     return false;
 }
 
+export function hasUnseenPost(context: vscode.ExtensionContext){
+    const myKeys = context.workspaceState.keys();
+
+    for(var i = 0; i < myKeys.length; i++){
+        const post: TrackOverflowPost | undefined = context.workspaceState.get(myKeys[i]);
+        if(post && !post.seen && !post.isHidden){
+            return true;    
+        }
+    }
+
+    return false;
+}
+
 export function getStoredDataPostIDs(context: vscode.ExtensionContext): string{
     const myKeys = context.workspaceState.keys();
     var post_ids = '';
@@ -66,6 +79,9 @@ export function getAllStoredPosts(context: vscode.ExtensionContext){
 export async function hasPostBeenUpdated(context: vscode.ExtensionContext){
     const posts_ids: string = getStoredDataPostIDs(context);
     const local_posts = getAllStoredPosts(context);
+    
+    // check before doing fetch call.
+    if(local_posts.length === 0){ return false; }
 
     interface ApiResponse{ items: any[]; }
 
@@ -88,6 +104,8 @@ export async function hasPostBeenUpdated(context: vscode.ExtensionContext){
 export async function getAllUpdatedStoredPosts(context: vscode.ExtensionContext){
     const posts_ids: string = getStoredDataPostIDs(context);
     const local_posts = getAllStoredPosts(context);
+
+    if(local_posts.length === 0){ return []; }
 
     interface ApiResponse{
         items: any[];
