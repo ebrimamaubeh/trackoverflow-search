@@ -1,7 +1,6 @@
 $(document).ready(function(){
 
     // global variables. 
-    var has_more = null;
     const vscode = acquireVsCodeApi();
     
     $('#searchForm').submit(enterButtonPressed);
