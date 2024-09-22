@@ -16,12 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
     const ONE_SECOND = 1000;
     const ONE_HOUR = ONE_SECOND * 60 * 60;
     intervalId = setInterval( async () => {
-        /**
-         * TODO: Check if there is a message that has not been seen.
-         * if one message has not been seen. then show notification where he can see that message
-         * not the whole list. this should be done only if you get only one message not seen.
-         * default is show him the list.
-         */
+
         const hasUnseenPost = Helpers.hasUnseenPost(context);
         const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
         if(hasUnseenPost && hasPostBeenUpdated){
@@ -34,7 +29,11 @@ export function activate(context: vscode.ExtensionContext) {
         else{
             console.log('Background task: Post Not Changed Or Updated.');
         }
-    }, 10000);//TODO: change to one hour.
+    }, 20000);//TODO: change to one hour.
+
+    //delete
+    // Helpers.deleteAllWorkspaceData(context);
+    // Helpers.changeCopiedDates(context);
 
 
 	const commandId = 'trackoverflow-search.mainView';
@@ -116,7 +115,22 @@ export function activate(context: vscode.ExtensionContext) {
                         command: 'list-posts',
                         updated_posts: updated_posts 
                     });
+                break;
+                case 'update-seen': 
+                    console.log('updating seen: ', message.post);
+                    // get post, then update post seen.
+                    var oldPost: TrackOverflowPost | undefined = context.workspaceState.get(message.post.id);
+                    if(oldPost){
+                        if( !oldPost.seen ){
+                            oldPost.seen = true;
+                            context.workspaceState.update(oldPost.id.toString(), oldPost);
+                        }
 
+                    }
+                    else{
+                        throw new Error('Cannot update Post to Seen: '+ oldPost);
+                    }
+                    
                 break;
 
             }

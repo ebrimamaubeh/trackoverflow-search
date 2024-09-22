@@ -21,23 +21,6 @@ $(document).ready(function(){
         return '<p> No Data To Display </p>';
     }
 
-    function clearLinksPageContent(){
-        document.getElementById('linksDiv').innerHTML = '';
-        document.getElementById('pagination').innerHTML = '';
-    }
-
-    function setLoadingDiv(message){
-        var loadingDiv = document.getElementById('loadingContainer');
-        loadingDiv.innerHTML = '<p class="display-1 text-center">'+ message +'</p>';
-    }
-    function clearLoadingDiv(){
-        document.getElementById('loadingContainer').innerHTML = '';
-    }
-
-    function clearDetailPageContent(){
-        document.getElementById('detailPageContent').innerHTML = '';
-    }
-
     async function mainDataStorage(event){
 
         var command = event.data.command;
@@ -58,10 +41,50 @@ $(document).ready(function(){
             getDetailPageHTML(event);
             clearLoadingDiv();
 
-            // add back button. 
             addBackButton();
+
+            //send a post message to indicate message is seen.
+            updatePostSeen(event.data.post);
         }
 
+    }
+
+    function updatePostSeen(post){
+        vscode.postMessage({
+            command: 'update-seen', 
+            post: post
+        });
+    }
+
+    function getDetailPageHTML(event){
+        const post = event.data.post;
+
+        var contentDiv = document.getElementById('detailPageContent');
+
+        const url = 'https://api.stackexchange.com/2.3/posts/'+ post.id +'/revisions?fromdate='+ 
+                        post.dateCopied +'&site=stackoverflow&filter=!nNPvSNH9Kx';
+
+        fetch(url)
+        .then(response => {
+          if (!response.ok) {throw new Error(`Failed to fetch data: ${response.status}`);}
+          return response.json();
+        }).then(data => {
+            const revisions = data.items;
+
+            var revisionHTML = '<div class="accordion" id="accordionRevision">';
+            for(var i = 0; i < revisions.length; i++){
+                var body = revisions[i].body;
+                var comment = revisions[i].comment;
+                if(body && body.length > 0){// not null or undefined.
+                    comment = comment ? comment: 'see code changes below';
+                    revisionHTML += getAccordionItem(comment, body, i);
+                }
+            }
+            revisionHTML += '</div>';
+
+            contentDiv.innerHTML = revisionHTML;
+        }).catch(error => { console.error('Error:', error); });
+        
     }
 
     function addBackButton(){
@@ -82,40 +105,25 @@ $(document).ready(function(){
         // backButtonDiv.innerHTML = `<button type="button" class="btn btn-primary"> Back To Updated Posts </button>`;
     }
 
-    function clearBackButton(){
-        document.getElementById('backButtonDiv').innerHTML = '';
+    function clearLinksPageContent(){
+        document.getElementById('linksDiv').innerHTML = '';
+        document.getElementById('pagination').innerHTML = '';
     }
 
-    function getDetailPageHTML(event){
-        const post_id = event.data.post_id;
-        const post = event.data.post;
+    function setLoadingDiv(message){
+        var loadingDiv = document.getElementById('loadingContainer');
+        loadingDiv.innerHTML = '<p class="display-1 text-center">'+ message +'</p>';
+    }
+    function clearLoadingDiv(){
+        document.getElementById('loadingContainer').innerHTML = '';
+    }
 
-        var contentDiv = document.getElementById('detailPageContent');
+    function clearDetailPageContent(){
+        document.getElementById('detailPageContent').innerHTML = '';
+    }
 
-        const url = 'https://api.stackexchange.com/2.3/posts/'+ post.id +'/revisions?fromdate='+ 
-                        post.dateCopied +'&site=stackoverflow&filter=!nNPvSNH9Kx';
-
-        fetch(url)
-        .then(response => {
-          if (!response.ok) {throw new Error(`Failed to fetch data: ${response.status}`);}
-          return response.json();
-        }).then(data => {
-            const revisions = data.items;
-
-            var revisionHTML = '<div class="accordion" id="accordionRevision">';
-            //TODO: I should check if body is there before printing it, or even listing it.
-            for(var i = 0; i < revisions.length; i++){
-                var body = revisions[i].body;
-                if(body){// not null or undefined.
-                    body = body.length > 0 ? body : '';
-                    revisionHTML += getAccordionItem(revisions[i].comment, body, i);
-                }
-            }
-            revisionHTML += '</div>';
-
-            contentDiv.innerHTML = revisionHTML;
-        }).catch(error => { console.error('Error:', error); });
-        
+    function clearBackButton(){
+        document.getElementById('backButtonDiv').innerHTML = '';
     }
 
     function getAccordionItem(comment, body = '', counter){

@@ -147,3 +147,27 @@ export function deleteAllWorkspaceData(context: vscode.ExtensionContext): void {
     console.log('keys after: ', keys);
 }
 
+export async function changeCopiedDates(context: vscode.ExtensionContext){
+    const posts_ids: string = getStoredDataPostIDs(context);
+    const local_posts = getAllStoredPosts(context);
+
+    if(local_posts.length === 0){ return []; }
+
+    interface ApiResponse{
+        items: any[];
+    }
+
+    const post_url = 'https://api.stackexchange.com/2.3/posts/'+ posts_ids +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNQ6rQ';
+    let fetchResult = await fetch(post_url);
+    let data = (await fetchResult.json()) as ApiResponse;
+    var new_posts = data.items;
+
+    assert(local_posts.length === new_posts.length, 'Posts have a different number');
+
+    for(var i = 0; i < local_posts.length; i++){
+        local_posts[i].dateCopied = new_posts[i].creation_date;
+        context.workspaceState.update(local_posts[i].id.toString(), local_posts[i]);
+    }
+
+}
+
