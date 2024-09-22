@@ -111,7 +111,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
 
-        
 
         panel.webview.onDidReceiveMessage(async message => {
             switch (message.command) {
@@ -124,6 +123,24 @@ export function activate(context: vscode.ExtensionContext) {
                     });
                 break;
                 case 'back-button': 
+                    var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
+                    panel.webview.postMessage({ 
+                        command: 'list-posts',
+                        updated_posts: updated_posts 
+                    });
+                break;
+                case 'hide-button': 
+                    // hide post should just delete post.
+                    const warningMessage = 'This Will Delete Revision. Are You Sure?';
+                    const selection = await vscode.window.showWarningMessage(warningMessage,'Delete?', 'Ignore');
+                    if ((selection !== undefined) && selection !== 'Ignore') {
+                        var oldPost: TrackOverflowPost | undefined = context.workspaceState.get(message.post_id);
+                        if(oldPost){
+                            context.workspaceState.update(oldPost.id.toString(), undefined); // delete..
+                        }
+                    }
+
+                    // then send him to main page.
                     var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
                     panel.webview.postMessage({ 
                         command: 'list-posts',
@@ -189,7 +206,15 @@ function getDataPageHTML(scriptSrc: vscode.Uri){
 
                 <div id="loadingContainer"></div>
 
-                <div id="backButtonDiv"></div>
+                <div class="row">
+                    <div class="col-3">
+                        <div id="backButtonDiv"></div>
+                    </div>
+                    <div class="col-6"> </div>
+                    <div class="col-3">
+                        <div id="hideButtonDiv"></div>
+                    </div>
+                </div>
                 
                 <hr>
 

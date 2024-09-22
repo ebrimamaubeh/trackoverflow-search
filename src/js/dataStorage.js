@@ -32,6 +32,7 @@ $(document).ready(function(){
             listCopiedLinks(event);
             clearLoadingDiv();
             clearBackButton();
+            clearHideButton();
 
         }
         else if(command === 'detail-post'){
@@ -42,6 +43,7 @@ $(document).ready(function(){
             clearLoadingDiv();
 
             addBackButton();
+            addHideButton(event.data.post.id);
 
             //send a post message to indicate message is seen.
             updatePostSeen(event.data.post);
@@ -93,7 +95,6 @@ $(document).ready(function(){
         var backButton = document.createElement('button');
         backButton.setAttribute('class', 'btn btn-primary');
         backButton.innerHTML = 'Back To Posts';
-        
         backButtonDiv.appendChild(backButton);
 
         backButton.addEventListener('click', function(){
@@ -102,7 +103,22 @@ $(document).ready(function(){
             });
         });
 
-        // backButtonDiv.innerHTML = `<button type="button" class="btn btn-primary"> Back To Updated Posts </button>`;
+    }
+
+    function addHideButton(id){
+        var hideButtonDiv = document.getElementById('hideButtonDiv');
+    
+        var hideButton = document.createElement('button');
+        hideButton.setAttribute('class', 'btn btn-danger');
+        hideButton.innerHTML = 'Hide Revisions';
+        hideButtonDiv.appendChild(hideButton);
+    
+        hideButton.addEventListener('click', function(){
+            vscode.postMessage({
+                command: 'hide-button', 
+                post_id: id
+            });
+        });
     }
 
     function clearLinksPageContent(){
@@ -124,6 +140,10 @@ $(document).ready(function(){
 
     function clearBackButton(){
         document.getElementById('backButtonDiv').innerHTML = '';
+    }
+
+    function clearHideButton(){
+        document.getElementById('hideButtonDiv').innerHTML = '';
     }
 
     function getAccordionItem(comment, body = '', counter){

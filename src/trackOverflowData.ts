@@ -8,7 +8,6 @@ export interface TrackOverflowPost{
     post: string;
     link: string;
     seen: boolean; // post has been seen.
-    isHidden: boolean; // is post hidden.
 }
 
 export function createTrackOverflowPost(message: any){
@@ -20,7 +19,6 @@ export function createTrackOverflowPost(message: any){
         post: message.post,
         link: message.link,
         seen: false, 
-        isHidden: false
     }; 
 
     return post;

@@ -10,7 +10,7 @@ export function hasData(context: vscode.ExtensionContext){
 
     for(var i = 0; i < myKeys.length; i++){
         const post: TrackOverflowPost | undefined = context.workspaceState.get(myKeys[i]);
-        if(post && !post.isHidden){
+        if(post){
             return true;    // there is atleast one item.
         }
     }
@@ -23,7 +23,7 @@ export function hasUnseenPost(context: vscode.ExtensionContext){
 
     for(var i = 0; i < myKeys.length; i++){
         const post: TrackOverflowPost | undefined = context.workspaceState.get(myKeys[i]);
-        if(post && !post.seen && !post.isHidden){
+        if(post && !post.seen){
             return true;    
         }
     }
@@ -36,7 +36,7 @@ export function getStoredDataPostIDs(context: vscode.ExtensionContext): string{
     var post_ids = '';
     for(var i = 0; i < myKeys.length; i++){
         const post: TrackOverflowPost | undefined = context.workspaceState.get(myKeys[i]);
-        if(post && !post.isHidden){
+        if(post){
             post_ids += post.id + ';';
         }
     }
@@ -51,8 +51,7 @@ export function getStoredDataLinks(context: vscode.ExtensionContext): string[] {
     var links = [];
     for(var i = 0; i < myKeys.length; i++){
         const post: TrackOverflowPost | undefined = context.workspaceState.get(myKeys[i]);
-        if(post && !post.isHidden){
-            // post_ids += post.link + ';';
+        if(post){
             links[i] = post.link;
         }
     }
@@ -67,7 +66,7 @@ export function getAllStoredPosts(context: vscode.ExtensionContext){
     
     for(var i = 0; i < keys.length; i++){
         const post: TrackOverflowPost | undefined = context.workspaceState.get(keys[i]);
-        if(post && !post.isHidden){
+        if(post){
             posts[i] = post;
         }
     }
@@ -122,11 +121,6 @@ export async function getAllUpdatedStoredPosts(context: vscode.ExtensionContext)
     var updated_posts = [];
     var post_counter = 0;
     for(var i = 0; i < local_posts.length; i++){
-        //testing...
-        // adding fake dates....
-        // local_posts[i].link = new_posts[i].link;
-        // context.workspaceState.update(local_posts[i].id.toString(), local_posts[i]);
-        //testing...
         if(new_posts[i].last_edit_date > local_posts[i].dateCopied){
             updated_posts[post_counter++] = local_posts[i];
         }
