@@ -1,4 +1,5 @@
-1. If the answer is seen, you need to update that. 
+1. If users see Notification has been clicked, if it's only one, just show them the detail page
+   and not the list of items.
 
 2. provide a button to hide the update. hide all revisions if the button is clicked.
 

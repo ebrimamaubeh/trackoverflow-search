@@ -23,18 +23,15 @@ export function activate(context: vscode.ExtensionContext) {
             const warningMessage = 'Warning: Some Code You Copied Has Changed';
             const selection = await vscode.window.showWarningMessage(warningMessage,'Show List', 'Ignore');
             if ((selection !== undefined) && selection !== 'Ignore') {
-                vscode.commands.executeCommand('trackoverflow-search.dataStorage');
+                // check how to pass args to commands. 
+                vscode.commands.executeCommand('trackoverflow-search.dataStorage', true);
             }
-        }
-        else{
-            console.log('Background task: Post Not Changed Or Updated.');
         }
     }, 20000);//TODO: change to one hour.
 
     //delete
     // Helpers.deleteAllWorkspaceData(context);
     // Helpers.changeCopiedDates(context);
-
 
 	const commandId = 'trackoverflow-search.mainView';
 	const trackOverflowDisposable = vscode.commands.registerCommand(commandId, async () => {
@@ -64,6 +61,7 @@ export function activate(context: vscode.ExtensionContext) {
                         const key = post.id.toString();
                         context.workspaceState.update(key, post);
                         vscode.window.showInformationMessage('copied');
+                    break;
                 }
             },
             undefined,
@@ -72,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	});
 
-    const trackOverflowStorageDisposable = vscode.commands.registerCommand('trackoverflow-search.dataStorage', async () => {
+    const trackOverflowStorageDisposable = vscode.commands.registerCommand('trackoverflow-search.dataStorage', async (serIntervalArg) => {
         
         const panel = vscode.window.createWebviewPanel(
 			'TrackOverflow Search',
@@ -84,19 +82,36 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		);
 
+
         const scriptPath = vscode.Uri.joinPath(context.extensionUri, 'src/js/', 'dataStorage.js');
         const scriptSrc = panel.webview.asWebviewUri(scriptPath);
 
         panel.webview.html = getDataPageHTML(scriptSrc);
 
-        const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
-        if(hasPostBeenUpdated){
+        if(serIntervalArg){ // function called by setInterval...
             var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
-            panel.webview.postMessage({ 
-                command: 'list-posts',
-                updated_posts: updated_posts 
-            });
+            console.log('setIntervalArgs: updated_posts: ', updated_posts);
+            if(updated_posts.length === 1){
+                var post = updated_posts[0];//only one post.
+                panel.webview.postMessage({ 
+                    command: 'detail-post',
+                    post_id: post.id,
+                    post: post
+                });
+            }
+        }else{
+            // function called through command palette
+            const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
+            if(hasPostBeenUpdated){
+                var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
+                panel.webview.postMessage({ 
+                    command: 'list-posts',
+                    updated_posts: updated_posts 
+                });
+            }
         }
+
+        
 
         panel.webview.onDidReceiveMessage(async message => {
             switch (message.command) {
@@ -107,7 +122,6 @@ export function activate(context: vscode.ExtensionContext) {
                         post_id: message.post_id,
                         post: post
                     });
-                    
                 break;
                 case 'back-button': 
                     var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
@@ -117,20 +131,16 @@ export function activate(context: vscode.ExtensionContext) {
                     });
                 break;
                 case 'update-seen': 
-                    console.log('updating seen: ', message.post);
-                    // get post, then update post seen.
                     var oldPost: TrackOverflowPost | undefined = context.workspaceState.get(message.post.id);
                     if(oldPost){
                         if( !oldPost.seen ){
                             oldPost.seen = true;
                             context.workspaceState.update(oldPost.id.toString(), oldPost);
                         }
-
                     }
                     else{
                         throw new Error('Cannot update Post to Seen: '+ oldPost);
-                    }
-                    
+                    }       
                 break;
 
             }
