@@ -1,7 +1,3 @@
-1. If users see Notification has been clicked, if it's only one, just show them the detail page
-   and not the list of items.
-
-2. provide a button to hide the update. hide all revisions if the button is clicked.
 
 Bonus. 
 1. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 

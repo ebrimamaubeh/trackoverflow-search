@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     //delete
     // Helpers.deleteAllWorkspaceData(context);
-    // Helpers.changeCopiedDates(context);
+    Helpers.changeCopiedDates(context);
 
 	const commandId = 'trackoverflow-search.mainView';
 	const trackOverflowDisposable = vscode.commands.registerCommand(commandId, async () => {
@@ -88,22 +88,19 @@ export function activate(context: vscode.ExtensionContext) {
 
         panel.webview.html = getDataPageHTML(scriptSrc);
 
-        if(serIntervalArg){ // function called by setInterval...
-            var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
-            console.log('setIntervalArgs: updated_posts: ', updated_posts);
-            if(updated_posts.length === 1){
-                var post = updated_posts[0];//only one post.
-                panel.webview.postMessage({ 
-                    command: 'detail-post',
-                    post_id: post.id,
-                    post: post
-                });
-            }
+        var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
+
+        if(serIntervalArg && updated_posts.length === 1){ // function called by setInterval...
+            var post = updated_posts[0];//only one post.
+            panel.webview.postMessage({ 
+                command: 'detail-post',
+                post_id: post.id,
+                post: post
+            });
         }else{
             // function called through command palette
             const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
             if(hasPostBeenUpdated){
-                var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
                 panel.webview.postMessage({ 
                     command: 'list-posts',
                     updated_posts: updated_posts 
