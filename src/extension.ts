@@ -29,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.commands.executeCommand('trackoverflow-search.dataStorage', true);
             }
         }
-    }, 10000);//TODO: change to one hour.
+    }, ONE_HOUR);
 
     //delete
     // Helpers.deleteAllWorkspaceData(context);

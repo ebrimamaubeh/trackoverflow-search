@@ -4,4 +4,3 @@ Bonus.
 
 2. You can use Machine Learning later to analyse the content, and see if its has changed. 
    You can also use Tensoflow.
-
