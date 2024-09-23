@@ -74,6 +74,11 @@ $(document).ready(function(){
             const revisions = data.items;
 
             var revisionHTML = '<div class="accordion" id="accordionRevision">';
+            revisionHTML += `   <h6> Copied Code: </h6>
+                                <div> ========================================== </div>
+                                    <div class='text-secondary'>`+ post.code +`</div>
+                                <div> ========================================== </div>
+                                <br> `;
             for(var i = 0; i < revisions.length; i++){
                 var body = revisions[i].body;
                 var comment = revisions[i].comment;

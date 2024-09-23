@@ -1,7 +1,3 @@
-1. maybe you need to put the original copied code, so the user can see it, before listing the detail revision
-   in the revisions page.
-
-
 Bonus. 
 1. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 
    specific bug errors. 
