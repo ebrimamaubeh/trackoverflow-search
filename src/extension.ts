@@ -7,6 +7,7 @@ import * as Helpers from './helpers';
 
 // Global variable to store the interval ID
 let intervalId: NodeJS.Timeout | undefined;
+let storagePanelVisible : boolean = false;
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -19,7 +20,8 @@ export function activate(context: vscode.ExtensionContext) {
 
         const hasUnseenPost = Helpers.hasUnseenPost(context);
         const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
-        if(hasUnseenPost && hasPostBeenUpdated){
+        if(hasUnseenPost && hasPostBeenUpdated && !storagePanelVisible){
+            //TODO: get current panel. dont show this message if you are on dataStorage page.
             const warningMessage = 'Warning: Some Code You Copied Has Changed';
             const selection = await vscode.window.showWarningMessage(warningMessage,'Show List', 'Ignore');
             if ((selection !== undefined) && selection !== 'Ignore') {
@@ -27,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.commands.executeCommand('trackoverflow-search.dataStorage', true);
             }
         }
-    }, 20000);//TODO: change to one hour.
+    }, 5000);//TODO: change to one hour.
 
     //delete
     // Helpers.deleteAllWorkspaceData(context);
@@ -87,10 +89,16 @@ export function activate(context: vscode.ExtensionContext) {
         const scriptSrc = panel.webview.asWebviewUri(scriptPath);
 
         panel.webview.html = getDataPageHTML(scriptSrc);
+        storagePanelVisible = true;
 
         var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
 
-        if(serIntervalArg && updated_posts.length === 1){ // function called by setInterval...
+        //testing...
+        panel.onDidDispose(() => { storagePanelVisible = false; }, null, context.subscriptions);
+        //testing...
+        
+
+        if(serIntervalArg && Helpers.unSeenPostCount(updated_posts) === 1){ // function called by setInterval...
             var post = updated_posts[0];//only one post.
             panel.webview.postMessage({ 
                 command: 'detail-post',

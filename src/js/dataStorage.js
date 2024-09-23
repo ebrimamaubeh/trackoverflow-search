@@ -77,10 +77,11 @@ $(document).ready(function(){
             for(var i = 0; i < revisions.length; i++){
                 var body = revisions[i].body;
                 var comment = revisions[i].comment;
-                if(body && body.length > 0){// not null or undefined.
-                    comment = comment ? comment: 'see code changes below';
-                    revisionHTML += getAccordionItem(comment, body, i);
-                }
+
+                comment = comment ? comment: 'see code changes below';
+                body = body ? body : '';
+
+                revisionHTML += getAccordionItem(comment, body, i);
             }
             revisionHTML += '</div>';
 

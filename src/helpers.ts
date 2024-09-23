@@ -165,3 +165,15 @@ export async function changeCopiedDates(context: vscode.ExtensionContext){
 
 }
 
+export function unSeenPostCount(updated_post: TrackOverflowPost[]) : number {
+
+    var counter = 0;
+    for(var i = 0; i < updated_post.length; i++){
+        if(!updated_post[i].seen){
+            counter++;
+        }
+    }
+
+    return counter;
+}
+

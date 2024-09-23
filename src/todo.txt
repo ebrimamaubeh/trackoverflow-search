@@ -1,13 +1,11 @@
+1. maybe you need to put the original copied code, so the user can see it, before listing the detail revision
+   in the revisions page.
+
 
 Bonus. 
 1. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 
    specific bug errors. 
 
-2. make max pagination dynamic.
-
-3. sometimes the page will do a refresh when you click a page number, i think its because of the content
-   of the post/answer. if you can fix this good, otherwise just leave it.
-
-4. You can use Machine Learning later to analyse the content, and see if its has changed. 
+2. You can use Machine Learning later to analyse the content, and see if its has changed. 
    You can also use Tensoflow.
 
