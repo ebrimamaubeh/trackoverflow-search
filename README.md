@@ -1,9 +1,27 @@
 # trackoverflow-search README
 
+//delete//
 This is the README for your extension "trackoverflow-search". After writing up a brief description, we recommend including the following sections.
+//delete//
+
+**Tired of manually copying and pasting code from Stack Overflow?** Introducing TrackOverflow-Search, your one-stop shop for finding, copying, and keeping track of code snippets!
+
+This program allows you to search on stackoverflow. It then provides you with a list of questions related to your search, with the associated answers (if any) to the questions provided. 
+
+People that search for code on stackoverflow often copy the some code snipet to solve their problems. However, most people soon forget about the code and move on with their lives. The copied code snippet however, might be updated (due to bug fixes, depricated code, etc.), and the users will not know if this has happened, leading to security bugs in their code. 
+
+This extension helps users find this bug, by notifiying them of code snipet edits and changes so they can quickly fix the errors if there are any.
 
 ## Features
 
+### Search and copy code
+
+
+### Manually check for any updated for copied code
+
+
+
+///// delete later ///
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
 
 For example if there is an image subfolder under your extension project workspace:
@@ -11,6 +29,8 @@ For example if there is an image subfolder under your extension project workspac
 \!\[feature X\]\(images/feature-x.png\)
 
 > Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+
+///// delete later ////
 
 ## Requirements
 
