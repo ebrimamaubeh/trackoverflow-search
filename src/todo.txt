@@ -1,3 +1,13 @@
+1. remove the posts with no comments.
+
+################################### sven #########################################
+1. you must check if comments mention code updates. 
+
+2. You need to know if the code is pasted or not, if so, which file its pasted.
+   If code is copied but not pasted, you should not track it.
+
+################################### sven #########################################
+
 Bonus. 
 1. later, you need to fetch dates from and to. and use the results in demo. maybe you can get 
    specific bug errors. 

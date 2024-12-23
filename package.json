@@ -19,11 +19,7 @@
       },
       {
         "command": "trackoverflow-search.dataStorage",
-        "title": "TrackOverflow Stored Data Q/A"
-      },
-      {
-        "command": "trackoverflow-search.testingLinks",
-        "title": "Testing Links"
+        "title": "TrackOverflow Stored Data"
       }
     ]
   },

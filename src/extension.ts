@@ -25,15 +25,17 @@ export function activate(context: vscode.ExtensionContext) {
             const warningMessage = 'Warning: Some Code You Copied Has Changed';
             const selection = await vscode.window.showWarningMessage(warningMessage,'Show List', 'Ignore');
             if ((selection !== undefined) && selection !== 'Ignore') {
-                // check how to pass args to commands. 
+                // check how to pass args to commands.
                 vscode.commands.executeCommand('trackoverflow-search.dataStorage', true);
             }
         }
-    }, ONE_HOUR);
+    }, ONE_SECOND * 5);
 
     //delete
-    // Helpers.deleteAllWorkspaceData(context);
-    Helpers.changeCopiedDates(context);
+    //Helpers.deleteAllWorkspaceData(context);
+
+    //changbe dates.
+    //Helpers.changeCopiedDates(context);
 
 	const commandId = 'trackoverflow-search.mainView';
 	const trackOverflowDisposable = vscode.commands.registerCommand(commandId, async () => {
@@ -54,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		panel.webview.html = getHtmlContent(scriptSrc);
            
-         // Handle messages from the webview
+        // Handle messages from the webview
         panel.webview.onDidReceiveMessage(
             message => {
                 switch(message.command){
@@ -71,6 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
         );
 
 	});
+
 
     const trackOverflowStorageDisposable = vscode.commands.registerCommand('trackoverflow-search.dataStorage', async (serIntervalArg) => {
         

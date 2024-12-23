@@ -79,7 +79,6 @@ export async function hasPostBeenUpdated(context: vscode.ExtensionContext){
     const posts_ids: string = getStoredDataPostIDs(context);
     const local_posts = getAllStoredPosts(context);
     
-    // check before doing fetch call.
     if(local_posts.length === 0){ return false; }
 
     interface ApiResponse{ items: any[]; }
@@ -98,6 +97,10 @@ export async function hasPostBeenUpdated(context: vscode.ExtensionContext){
     }
 
     return false;
+}
+
+export async function postsHaveComments(context: vscode.ExtensionContext) {
+    
 }
 
 export async function getAllUpdatedStoredPosts(context: vscode.ExtensionContext){

@@ -23,3 +23,15 @@ export function createTrackOverflowPost(message: any){
 
     return post;
 }
+
+// a set of words I will be looking for in edits and updates.
+export function wordSnippets(){
+    const array = [
+        'error', 'errors',
+        'code does not work', 'contains errors', 'not working', 
+        'deprecated code', 'updated code', 'code upgrade', 'code changed',
+        'more details'
+    ];
+
+    return array;
+}
