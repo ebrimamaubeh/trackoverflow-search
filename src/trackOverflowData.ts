@@ -25,9 +25,11 @@ export function createTrackOverflowPost(message: any){
 }
 
 // a set of words I will be looking for in edits and updates.
-export function wordSnippets(){
+export function wordSnippetList(){
+    // link to get comments. 
+    // https://api.stackexchange.com/docs/comments-on-posts
     const array = [
-        'error', 'errors',
+        'error', 'errors','debug error', 
         'code does not work', 'contains errors', 'not working', 
         'deprecated code', 'updated code', 'code upgrade', 'code changed',
         'more details'

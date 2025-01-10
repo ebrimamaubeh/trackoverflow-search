@@ -20,7 +20,8 @@ export function activate(context: vscode.ExtensionContext) {
 
         const hasUnseenPost = Helpers.hasUnseenPost(context);
         const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
-        if(hasUnseenPost && hasPostBeenUpdated && !storagePanelVisible){
+        const hasNewComments = await Helpers.postsHasNewComments(context);
+        if(hasUnseenPost && (hasPostBeenUpdated || hasNewComments) && !storagePanelVisible){
             //TODO: get current panel. dont show this message if you are on dataStorage page.
             const warningMessage = 'Warning: Some Code You Copied Has Changed';
             const selection = await vscode.window.showWarningMessage(warningMessage,'Show List', 'Ignore');
@@ -29,13 +30,19 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.commands.executeCommand('trackoverflow-search.dataStorage', true);
             }
         }
-    }, ONE_SECOND * 5);
+    }, ONE_SECOND * 60 * 5);
 
     //delete
-    //Helpers.deleteAllWorkspaceData(context);
+    // Helpers.deleteAllWorkspaceData(context);
 
     //changbe dates.
-    //Helpers.changeCopiedDates(context);
+    // TODO: check dates of the comments, ont working yet.
+    // Helpers.changeCopiedDates(context);
+
+    // Helpers.postsHasNewComments(context);
+    // Helpers.getCommentsWithWordShippets(context);
+
+    // Helpers.getNewPostComments(context);//here...
 
 	const commandId = 'trackoverflow-search.mainView';
 	const trackOverflowDisposable = vscode.commands.registerCommand(commandId, async () => {
@@ -75,7 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 
-    const trackOverflowStorageDisposable = vscode.commands.registerCommand('trackoverflow-search.dataStorage', async (serIntervalArg) => {
+    const trackOverflowStorageDisposable = vscode.commands.registerCommand('trackoverflow-search.dataStorage', async (setIntervalArg) => {
         
         const panel = vscode.window.createWebviewPanel(
 			'TrackOverflow Search',
@@ -101,14 +108,15 @@ export function activate(context: vscode.ExtensionContext) {
         //testing...
         
 
-        if(serIntervalArg && Helpers.unSeenPostCount(updated_posts) === 1){ // function called by setInterval...
+        if(setIntervalArg && Helpers.unSeenPostCount(updated_posts) === 1){ // function called by setInterval...
             var post = updated_posts[0];//only one post.
-            panel.webview.postMessage({ 
+            panel.webview.postMessage({
                 command: 'detail-post',
                 post_id: post.id,
                 post: post
             });
-        }else{
+        }
+        else{
             // function called through command palette
             const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
             if(hasPostBeenUpdated){

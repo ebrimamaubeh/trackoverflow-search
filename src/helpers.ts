@@ -2,7 +2,7 @@
 
 import * as vscode from 'vscode';
 
-import { TrackOverflowPost } from './trackOverflowData';
+import { TrackOverflowPost, wordSnippetList } from './trackOverflowData';
 import { assert } from 'console';
 
 export function hasData(context: vscode.ExtensionContext){
@@ -99,8 +99,99 @@ export async function hasPostBeenUpdated(context: vscode.ExtensionContext){
     return false;
 }
 
-export async function postsHaveComments(context: vscode.ExtensionContext) {
+//TODO: here...
+export async function postsHasNewComments(context: vscode.ExtensionContext) {
+    // ids = 15182496;588683
+    const posts_ids: string = getStoredDataPostIDs(context);
+    const local_posts = getAllStoredPosts(context);
+
+    if(local_posts.length === 0){ return false; }
+
+    interface ApiResponse{ items: any[]; }
+    const url = 'https://api.stackexchange.com/2.3/posts/'+ posts_ids +'/comments?order=desc&sort=creation&site=stackoverflow&filter=!6WPIompASGkR4';
     
+    let fetchResult = await fetch(url);
+    let data = (await fetchResult.json()) as ApiResponse;
+    var comments = data.items;
+
+    for(var local_index = 0; local_index < local_posts.length; local_index++){
+        for(var comment_index = 0; comment_index < comments.length; comment_index++){
+            var samePost = local_posts[local_index].id === comments[comment_index].post_id;
+            var isNewComment = local_posts[local_index].dateCopied > comments[comment_index].creation_date;
+
+            if(samePost){ //TODO: same post not working, fix.
+                console.log('testitng: ');
+                console.log('dateCopied: ', new Date(local_posts[0].dateCopied));
+                console.log('commentDate: ', comments[comment_index].creation_date);
+                console.log('testing: ');
+                return false;
+            }
+
+            if(samePost && isNewComment){
+                console.log('postsHasNewComments: true');
+                return true;
+            }
+        }
+    }
+
+    console.log('postsHasNewComments: false');
+
+    return false;
+}
+
+export async function getNewPostComments(context: vscode.ExtensionContext) {
+    const posts_ids: string = getStoredDataPostIDs(context);
+    const local_posts = getAllStoredPosts(context);
+    interface ApiResponse{ items: any[]; }
+
+    /////////////////////////
+    const url = 'https://api.stackexchange.com/2.3/posts/'+ posts_ids +'/comments?order=desc&sort=creation&site=stackoverflow&filter=!6WPIompASGkR4';
+    let fetchResult = await fetch(url);
+    let data = (await fetchResult.json()) as ApiResponse; 
+    var comments = data.items;
+
+    var updated_comments = [];
+    var counter = 0;
+
+    for(var comment_index = 0; comment_index < comments.length; comment_index++){
+        for(var local_index = 0; local_index < local_posts.length; local_index++){
+            
+            //Note: local post id is a string, must convert it first.
+            if(Number(local_posts[local_index].id) === comments[comment_index].post_id){
+                var isNewComment = comments[comment_index].creation_date > local_posts[local_index].dateCopied;
+                if(isNewComment){
+                    updated_comments[counter++] = comments[comment_index];
+                }
+                
+            }
+        }
+    }
+
+    return updated_comments; 
+}
+
+export async function getCommentsWithWordShippets(context: vscode.ExtensionContext) {
+    const newComments = await getNewPostComments(context);
+    const words = wordSnippetList();
+
+    // return array containing only of comments with the words.
+    var results = [];
+    var count = 0;
+    for(var i = 0; i < newComments.length; i++){
+
+        for(var w = 0; w < words.length; w++){
+            const containsWord = newComments[i].body.includes(words[w]);
+            const isAdded = results.includes(newComments[i]);
+            
+            if(containsWord && !isAdded){
+                results[count++] = newComments[i];
+            }
+        }
+
+    }
+
+    console.log('comments with words: ', results);
+    return results;
 }
 
 export async function getAllUpdatedStoredPosts(context: vscode.ExtensionContext){

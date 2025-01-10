@@ -6,6 +6,8 @@
 2. You need to know if the code is pasted or not, if so, which file its pasted.
    If code is copied but not pasted, you should not track it.
 
+3. What if someone copies code, but didn't post it, you need to track this.
+
 ################################### sven #########################################
 
 Bonus. 
