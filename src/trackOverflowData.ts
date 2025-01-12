@@ -31,7 +31,7 @@ export function wordSnippetList(){
     const array = [
         'error', 'errors','debug error', 
         'code does not work', 'contains errors', 'not working', 
-        'deprecated code', 'updated code', 'code upgrade', 'code changed',
+        'deprecated code', 'update', 'updated code', 'code upgrade', 'code changed',
         'more details'
     ];
 

@@ -44,6 +44,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Helpers.getNewPostComments(context);//here...
 
+    // Helpers.getAllStoredPosts(context);
+
+    // Helpers.hasPostBeenUpdated(context);//here...
+
+    Helpers.getNewRevisionsPost(context); // implement this funciton in html.
+
 	const commandId = 'trackoverflow-search.mainView';
 	const trackOverflowDisposable = vscode.commands.registerCommand(commandId, async () => {
 		
@@ -102,6 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
         storagePanelVisible = true;
 
         var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
+        console.log('110: updated_posts: ', updated_posts);
 
         //testing...
         panel.onDidDispose(() => { storagePanelVisible = false; }, null, context.subscriptions);
@@ -121,7 +128,8 @@ export function activate(context: vscode.ExtensionContext) {
             const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
             if(hasPostBeenUpdated){
                 panel.webview.postMessage({ 
-                    command: 'list-posts',
+                    command: 'list-posts', // TODO: you must include comment posts here.
+                                           // updated_post might be === revision, not posts. 
                     updated_posts: updated_posts 
                 });
             }

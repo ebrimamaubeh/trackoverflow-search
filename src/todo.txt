@@ -1,4 +1,10 @@
-1. remove the posts with no comments.
+############################ currently working on ############################################
+1. I am working on getting updated post, that has the words in wordssnippets. 
+2. working on new comments that are added, and includes words in wordssnippets. (working on this).
+############################ currently working on ############################################
+
+1. remove the posts with no comments.(I don't think I should do this).
+2. You may also check if there is a new answer. (do this later).
 
 ################################### sven #########################################
 1. you must check if comments mention code updates. 

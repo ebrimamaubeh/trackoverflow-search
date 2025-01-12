@@ -71,10 +71,11 @@ export function getAllStoredPosts(context: vscode.ExtensionContext){
         }
     }
 
+    console.log('stored posts: ', posts);
     return posts;
 }
 
-// function to check if code has changed using post ids. 
+// function to check if code has changed using post ids. also check if words snippets are used.
 export async function hasPostBeenUpdated(context: vscode.ExtensionContext){
     const posts_ids: string = getStoredDataPostIDs(context);
     const local_posts = getAllStoredPosts(context);
@@ -91,7 +92,22 @@ export async function hasPostBeenUpdated(context: vscode.ExtensionContext){
     assert(local_posts.length === new_posts.length, 'Posts have a different number');
 
     for(var i = 0; i < local_posts.length; i++){
-        if(new_posts[i].last_edit_date > local_posts[i].dateCopied){
+        var isNew = new_posts[i].last_edit_date > local_posts[i].dateCopied;
+        //TODO: if not new, don't need to loop, add if here later. not in loop.
+        if(isNew && hasWordSnippet(new_posts[i].body)){
+            return true;
+        }
+
+    }
+
+    return false;
+}
+
+function hasWordSnippet(text: string){
+    const words = wordSnippetList();
+
+    for(var w = 0; w < words.length; w++){
+        if(text.includes(words[w])){
             return true;
         }
     }
@@ -100,42 +116,22 @@ export async function hasPostBeenUpdated(context: vscode.ExtensionContext){
 }
 
 //TODO: here...
+//TODO: you must add dates here.
 export async function postsHasNewComments(context: vscode.ExtensionContext) {
-    // ids = 15182496;588683
-    const posts_ids: string = getStoredDataPostIDs(context);
-    const local_posts = getAllStoredPosts(context);
+    const newComments = await getNewPostComments(context);
+    const words = wordSnippetList();
 
-    if(local_posts.length === 0){ return false; }
+    // return array containing only of comments with the words.
+    for(var i = 0; i < newComments.length; i++){
 
-    interface ApiResponse{ items: any[]; }
-    const url = 'https://api.stackexchange.com/2.3/posts/'+ posts_ids +'/comments?order=desc&sort=creation&site=stackoverflow&filter=!6WPIompASGkR4';
-    
-    let fetchResult = await fetch(url);
-    let data = (await fetchResult.json()) as ApiResponse;
-    var comments = data.items;
-
-    for(var local_index = 0; local_index < local_posts.length; local_index++){
-        for(var comment_index = 0; comment_index < comments.length; comment_index++){
-            var samePost = local_posts[local_index].id === comments[comment_index].post_id;
-            var isNewComment = local_posts[local_index].dateCopied > comments[comment_index].creation_date;
-
-            if(samePost){ //TODO: same post not working, fix.
-                console.log('testitng: ');
-                console.log('dateCopied: ', new Date(local_posts[0].dateCopied));
-                console.log('commentDate: ', comments[comment_index].creation_date);
-                console.log('testing: ');
-                return false;
-            }
-
-            if(samePost && isNewComment){
-                console.log('postsHasNewComments: true');
+        for(var w = 0; w < words.length; w++){
+            const containsWord = newComments[i].body.includes(words[w]);
+            if(containsWord){
                 return true;
             }
         }
+
     }
-
-    console.log('postsHasNewComments: false');
-
     return false;
 }
 
@@ -174,7 +170,7 @@ export async function getCommentsWithWordShippets(context: vscode.ExtensionConte
     const newComments = await getNewPostComments(context);
     const words = wordSnippetList();
 
-    // return array containing only of comments with the words.
+    //TODO: Must add time comment was made, it must be new. comment time >= copied date.
     var results = [];
     var count = 0;
     for(var i = 0; i < newComments.length; i++){
@@ -194,6 +190,79 @@ export async function getCommentsWithWordShippets(context: vscode.ExtensionConte
     return results;
 }
 
+export async function getNewRevisionsPost(context: vscode.ExtensionContext) {
+ 
+    const posts_ids: string = getStoredDataPostIDs(context);
+    const local_posts = getAllStoredPosts(context);
+
+    if(local_posts.length === 0){ return []; }
+    interface ApiResponse{ items: any[]; }
+
+    const url = 'https://api.stackexchange.com/2.3/posts/'+ posts_ids +'/revisions?site=stackoverflow&filter=!*MUMPxmwAsI.Jq8h';
+    let fetchResult = await fetch(url);
+    let data = (await fetchResult.json()) as ApiResponse; 
+    var revisions = data.items;
+
+    var latest_revisions = []; // revisions with the latest date, after copy date.
+    var revision_count = 0;
+
+    for(var p = 0; p < local_posts.length; p++){
+
+        for(var r = 0; r < revisions.length; r++){
+            //Note: local post id is a string, must convert it first.
+            if(revisions[r].post_id === Number(local_posts[p].id)){
+                
+                var isNewRevision = revisions[r].creation_date > Number(local_posts[p].id);
+                var commentHasWordSnippet = revisions[r].comment && hasWordSnippet(revisions[r].comment);
+                var revisionBodyHasWordSnippet = revisions[r].body && hasWordSnippet(revisions[r].body);
+                //comment or body might be missing.
+                if(isNewRevision && (commentHasWordSnippet || revisionBodyHasWordSnippet)){
+                    latest_revisions[revision_count++] = revisions[r];
+                }
+            }
+        }
+    }
+
+    console.log('latest_revisions: ', latest_revisions);
+
+    return latest_revisions;
+
+}
+
+export async function hasNewRevisionsPost(context: vscode.ExtensionContext){
+    const posts_ids: string = getStoredDataPostIDs(context);
+    const local_posts = getAllStoredPosts(context);
+
+    if(local_posts.length === 0){ return []; }
+    interface ApiResponse{ items: any[]; }
+
+    const url = 'https://api.stackexchange.com/2.3/posts/'+ posts_ids +'/revisions?site=stackoverflow&filter=!*MUMPxmwAsI.Jq8h';
+    let fetchResult = await fetch(url);
+    let data = (await fetchResult.json()) as ApiResponse; 
+    var revisions = data.items;
+
+    for(var p = 0; p < local_posts.length; p++){
+
+        for(var r = 0; r < revisions.length; r++){
+            //Note: local post id is a string, must convert it first.
+            if(revisions[r].post_id === Number(local_posts[p].id)){
+                
+                var isNewRevision = revisions[r].creation_date > Number(local_posts[p].id);
+                var commentHasWordSnippet = revisions[r].comment && hasWordSnippet(revisions[r].comment);
+                var revisionBodyHasWordSnippet = revisions[r].body && hasWordSnippet(revisions[r].body);
+                //comment or body might be missing.
+                if(isNewRevision && (commentHasWordSnippet || revisionBodyHasWordSnippet)){
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+
+
 export async function getAllUpdatedStoredPosts(context: vscode.ExtensionContext){
     const posts_ids: string = getStoredDataPostIDs(context);
     const local_posts = getAllStoredPosts(context);
@@ -206,7 +275,7 @@ export async function getAllUpdatedStoredPosts(context: vscode.ExtensionContext)
 
     const post_url = 'https://api.stackexchange.com/2.3/posts/'+ posts_ids +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNQ6rQ';
     let fetchResult = await fetch(post_url);
-    let data = (await fetchResult.json()) as ApiResponse; // saw this using gemini.
+    let data = (await fetchResult.json()) as ApiResponse; 
     var new_posts = data.items;
 
     assert(local_posts.length === new_posts.length, 'Posts have a different number');

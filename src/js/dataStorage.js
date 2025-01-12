@@ -6,12 +6,22 @@ $(document).ready(function(){
 
 
     function template(posts){
+        /**
+         * Note: the links are correct, the parent element link is being use here (ie the question)
+         * Also, it takes time for the DataStorage elements to work, must re-run a few times. 
+         */
         if(posts.length > 0){
+            console.log('in function');
             var html = '<ul class="list-group">';
             for(var i = 0; i < posts.length; i++){
                 html += '<li class="list-group-item"> <a href="#" class="posts-list" '+
-                           'id="'+ posts[i].id +'"> '+ posts[i].link
-                        + '</a></li>';
+                           'id="'+ posts[i].id +'"> ';
+                           
+                const post_link = posts[i].link ? posts[i].link : posts[i].id;
+                
+                html += post_link + '</a> </li>';
+                        
+                console.log('posts[i]: ', posts[i]);
             }
             html += '</ul>';
 
@@ -169,11 +179,10 @@ $(document).ready(function(){
 
     function listCopiedLinks(event){
         var updated_posts = event.data.updated_posts;
+        console.log('in datastrogae: updated_post: ', updated_posts);
         let container = $('#pagination');
         container.pagination({
             pageSize: 10, 
-            showGoInput: true,
-            showGoButton: true,
             dataSource: updated_posts,
             callback: function (data) {
                 var html = template(data);
