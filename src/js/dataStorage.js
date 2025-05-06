@@ -31,46 +31,115 @@ $(document).ready(function(){
         return '<p> No Data To Display </p>';
     }
 
+    function getRevisionListElements(revisions){
+        var li = '';
+        for(var i = 0; i < revisions.length; i++){
+            if(revisions[i].comment){
+                li = '<li class="list-group-item"> <a href="#" class="posts-list" '+
+                 'id="'+ revisions[i].post_id +'">' + revisions[i].comment + '</a> </li>';
+            }
+            else{
+                li = '<li class="list-group-item"> <a href="#" class="posts-list" '+
+                 'id="'+ revisions[i].post_id +'">' + revisions[i].post_id + '</a> </li>';
+            }
+            li += '<br>';
+        }
+
+        return li;
+    }
+
+    function getCommentListElements(comments){
+        var li = '';
+        for(var i = 0; i < comments.length; i++){
+            li = '<li class="list-group-item"> <a href="#" class="comments-list" '+
+                 'id="'+ comments[i].comment_id +'">' + comments[i].link + '</a> </li>';
+
+            li += '<br>';
+        }
+        
+        return li;
+    }
+
     async function mainDataStorage(event){
 
         var command = event.data.command;
 
-        if(command === 'list-posts'){
-            clearDetailPageContent();
+        console.log('print everyting: ', event);
 
+        //TODO:  I think this should be removed. exchange to revisions.
+        // if(command === 'list-posts'){
+        //     clearDetailPageContent();
+
+        //     setLoadingDiv('Loading Links');
+        //     listCopiedLinks(event);
+        //     clearLoadingDiv();
+        //     clearBackButton();
+        //     clearHideButton();
+
+        // }
+        if(command === 'list-post-revisions-comments'){
+            /**
+             * Don't copy functions above, some of the functions have changed. 
+             * Solve tomorrow.
+             */
+
+            const comments = event.data.comments_with_snippets;
+            const revisions = event.data.post_revisions;
+
+            console.log('here;;;');
+            console.log('revisions: ', revisions);
+            console.log('comments: ', comments);
+
+
+            // call funcsions
+            var commentsLiHTML = getCommentListElements(comments);
+            var postLiHTML = getRevisionListElements(revisions);
+            var template_list = [postLiHTML, commentsLiHTML];
+            console.log('template-list: ', template_list);
+            // call functions.
+
+            clearDetailPageContent();
             setLoadingDiv('Loading Links');
-            listCopiedLinks(event);
+            // listCopiedLinks(event); // here... continue... (comment clicks not working.)
+            listRevisionsAndCommentsLinks(template_list);
             clearLoadingDiv();
             clearBackButton();
             clearHideButton();
 
         }
-        else if(command === 'detail-post'){
+        else if(command === 'detail-revision-post'){
             clearLinksPageContent();
 
+            const post = event.data.post;
+            const revisions_with_comments = event.data.revisions_with_comments;
             setLoadingDiv('Loading Detail Page');
-            getDetailPageHTML(event);
+            getDetailRevisionPageHTML(post, revisions_with_comments);
             clearLoadingDiv();
 
             addBackButton();
-            addHideButton(event.data.post.id);
+            addHideButton(event.data.post.id); // TODO; here. change.
 
             //send a post message to indicate message is seen.
             updatePostSeen(event.data.post);
+        }
+        else if(command === ''){
+
         }
 
     }
 
     function updatePostSeen(post){
         vscode.postMessage({
-            command: 'update-seen', 
+            command: 'update-seen',
             post: post
         });
     }
 
-    function getDetailPageHTML(event){
-        const post = event.data.post;
+    function getDetailRevisionPageHTML(post, revisions_with_comments){
 
+        //throw ('you must check todo.txt number 0.');
+        //TODO: no need to get the revisions, you already have them.
+        
         var contentDiv = document.getElementById('detailPageContent');
 
         const url = 'https://api.stackexchange.com/2.3/posts/'+ post.id +'/revisions?fromdate='+ 
@@ -177,6 +246,7 @@ $(document).ready(function(){
                 </div>`;
     }
 
+
     function listCopiedLinks(event){
         var updated_posts = event.data.updated_posts;
         console.log('in datastrogae: updated_post: ', updated_posts);
@@ -207,4 +277,47 @@ $(document).ready(function(){
             });
         }
     }
+
+
+    function listRevisionsAndCommentsLinks(template_list){
+        //this function has been highly modivied with templates list, datasorce...
+        let container = $('#pagination');
+        container.pagination({
+            pageSize: 10, 
+            dataSource: template_list,
+            callback: function (template_list) {
+
+                // ul outter element.
+                
+                var postLIs = template_list[0];
+                var commentLIs = template_list[1];
+
+                var html = '<ul class="list-group">';
+                html = postLIs + commentLIs;
+                html += '</ul>';
+                // here...
+                $("#linksDiv").html(html);
+
+                $('#loadingContainer').html('');
+
+                // add onclick on first button
+                addOnClickToPostLinks();
+            }
+        });
+
+        function addOnClickToPostLinks(){
+            const links = document.querySelectorAll('.posts-list');
+            links.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    vscode.postMessage({
+                        command: 'dataStorage-detail-page',
+                        post_id: link.id
+                    });
+                });
+            });
+        }
+    }
+
+
+
 });

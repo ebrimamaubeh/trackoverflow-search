@@ -1,4 +1,14 @@
+################################ working on traking pasting #################################
+1. track page copy on the webview. 
+2. track pasting, make sure it's from the webview.
+################################ working on traking pasting #################################
+
+I stopped working on this for some time, i forgot about where to start. 
+so I will continue above, When I try to debug, I will later continue here. 
 ############################ currently working on ############################################
+0. this is where i got stuck: I am currrently getting revisions, but i first have to get post, and check if
+   it has comments, but I am getting revisions in extensions helpers and now I am stuck getting post for the 
+   revisions. so therefore i have to do this in js (datastorage). 
 1. I am working on getting updated post, that has the words in wordssnippets. 
 2. working on new comments that are added, and includes words in wordssnippets. (working on this).
 ############################ currently working on ############################################

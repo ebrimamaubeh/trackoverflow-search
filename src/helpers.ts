@@ -115,10 +115,8 @@ function hasWordSnippet(text: string){
     return false;
 }
 
-//TODO: here...
-//TODO: you must add dates here.
 export async function postsHasNewComments(context: vscode.ExtensionContext) {
-    const newComments = await getNewPostComments(context);
+    const newComments = await getNewPostComments(context); // comments are new with dates added.
     const words = wordSnippetList();
 
     // return array containing only of comments with the words.
@@ -252,12 +250,14 @@ export async function hasNewRevisionsPost(context: vscode.ExtensionContext){
                 var revisionBodyHasWordSnippet = revisions[r].body && hasWordSnippet(revisions[r].body);
                 //comment or body might be missing.
                 if(isNewRevision && (commentHasWordSnippet || revisionBodyHasWordSnippet)){
+                    console.log('yes, has new revision');
                     return true;
                 }
             }
         }
     }
 
+    console.log('Has no revision');
     return false;
 }
 

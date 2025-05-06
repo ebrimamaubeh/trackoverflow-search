@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Helpers.hasPostBeenUpdated(context);//here...
 
-    Helpers.getNewRevisionsPost(context); // implement this funciton in html.
+    // Helpers.getNewRevisionsPost(context); // implement this funciton in html.
 
 	const commandId = 'trackoverflow-search.mainView';
 	const trackOverflowDisposable = vscode.commands.registerCommand(commandId, async () => {
@@ -114,25 +114,43 @@ export function activate(context: vscode.ExtensionContext) {
         panel.onDidDispose(() => { storagePanelVisible = false; }, null, context.subscriptions);
         //testing...
         
-
+        //TODO: This should change later, to revisions or comments. 
         if(setIntervalArg && Helpers.unSeenPostCount(updated_posts) === 1){ // function called by setInterval...
             var post = updated_posts[0];//only one post.
             panel.webview.postMessage({
-                command: 'detail-post',
+                command: 'detail-revision-post',//change the if to down.
                 post_id: post.id,
                 post: post
             });
         }
         else{
-            // function called through command palette
-            const hasPostBeenUpdated = await Helpers.hasPostBeenUpdated(context);
-            if(hasPostBeenUpdated){
-                panel.webview.postMessage({ 
-                    command: 'list-posts', // TODO: you must include comment posts here.
-                                           // updated_post might be === revision, not posts. 
-                    updated_posts: updated_posts 
+            /**
+             * TODO: remove if and else. change with
+             *  if(newcomments){links for new comments.}
+             * else{ new post links }
+             */
+            //TODO: this should have both post revisions or comments. 
+            
+            const postHasNewComments = await Helpers.postsHasNewComments(context);
+            const postHasNewRevisions = await Helpers.hasNewRevisionsPost(context);
+
+            if(postHasNewRevisions || postHasNewComments){ // bring revisions.
+                const revisions_with_snippets = await Helpers.getNewRevisionsPost(context);
+                const comments_with_snippets = await Helpers.getCommentsWithWordShippets(context);
+                //await Helpers.getStoredDataPostIDs(context);
+                const post_ids = context.workspaceState.keys();
+                console.log('post ids here: ', post_ids);
+                
+                // revisions or comments can be missing.
+                panel.webview.postMessage({
+                    command: 'list-post-revisions-comments', 
+                    revisions_with_snippets: revisions_with_snippets,
+                    comments_with_snippets: comments_with_snippets,
+                    post_ids: post_ids, 
+
                 });
             }
+
         }
 
 
@@ -141,16 +159,18 @@ export function activate(context: vscode.ExtensionContext) {
                 case 'dataStorage-detail-page':
                     var post = context.workspaceState.get(message.post_id);
                     panel.webview.postMessage({ 
-                        command: 'detail-post',
-                        post_id: message.post_id,
+                        command: 'detail-revision-post',
+                        post_id: message.post_id, //here...
                         post: post
                     });
                 break;
                 case 'back-button': 
-                    var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
+                    const post_revisions = await Helpers.getNewRevisionsPost(context);
+                    const comments_with_snippets = await Helpers.getCommentsWithWordShippets(context);
                     panel.webview.postMessage({ 
-                        command: 'list-posts',
-                        updated_posts: updated_posts 
+                        command: 'list-post-revisions-comments',
+                        post_revisions: post_revisions,
+                        comments_with_snippets: comments_with_snippets
                     });
                 break;
                 case 'hide-button': 
