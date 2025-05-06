@@ -1,6 +1,6 @@
 ################################ working on traking pasting #################################
-1. track page copy on the webview. 
-2. track pasting, make sure it's from the webview.
+1. if the user copies text, it assumes that the user will past it, you need to track this.
+change the current implementation to check if the user is pasting it...
 ################################ working on traking pasting #################################
 
 I stopped working on this for some time, i forgot about where to start. 
