@@ -4,6 +4,29 @@ $(document).ready(function(){
     const vscode = acquireVsCodeApi();
     
     $('#searchForm').submit(enterButtonPressed);
+
+    // highlighting and copying text, will send message of copy. 
+    document.addEventListener('copy', async (event) => {
+
+        const question_div = event.target.parentNode.parentNode;
+        const answer_div = event.target.parentNode.parentNode.parentNode;        
+        const code = event.target.innerHTML;
+
+        if(question_div.id){
+            const link = document.getElementById('link_'+ question_div.id).value;
+            const question_id = question_div.id;
+            
+            await sendPostMessageToExtension(question_id, 'question', code, link);
+        }
+
+        if(answer_div.id){
+            const link = document.getElementById('link_'+ answer_div.id).value;
+            const answer_id = answer_div.id;
+            
+            await sendPostMessageToExtension(answer_id, 'question', code, link);
+        }
+
+    });
     
     async function enterButtonPressed(event){
         event.preventDefault();
@@ -143,41 +166,42 @@ $(document).ready(function(){
                 document.body.removeChild(e);
             }
 
-            /**
-             * 
-             * @param {question or answer id} id 
-             * @param {indicate if it's a question or answer} stringType  
-             * @param {the code copied by the user.} code 
-             */
-            async function sendPostMessageToExtension(id, stringType, code, link){
-                //answer id = 1077349 
-                const post_url = 'https://api.stackexchange.com/2.3/posts/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNQ6rQ';
-
-                ////////////////////////////////////////
-                //an error might accure. do with try catch later.
-                let fetchResult = await fetch(post_url);
-                let data = await fetchResult.json();
-                console.log(data);
-                var post = data.items[0]; 
-
-                console.log(post);
-                
-                vscode.postMessage({
-                    command: 'copy', // code has been copied.
-                    id: id, 
-                    dateCopied: Date.now(),
-                    lastEdited: post.last_edit_date,
-                    code: code, 
-                    post: post.body,
-                    link: link, // question or answer link.
-                    seen: false, 
-                    isHidden: false
-                });
-                ///////////////////////////////////////
-
-            }
-
+           
         }
+    }
+
+     /**
+     * 
+     * @param {question or answer id} id 
+     * @param {indicate if it's a question or answer} stringType  
+     * @param {the code copied by the user.} code 
+     */
+     async function sendPostMessageToExtension(id, stringType, code, link){
+        //answer id = 1077349 
+        const post_url = 'https://api.stackexchange.com/2.3/posts/'+ id +'?order=desc&sort=activity&site=stackoverflow&filter=!nNPvSNQ6rQ';
+
+        ////////////////////////////////////////
+        //an error might accure. do with try catch later.
+        let fetchResult = await fetch(post_url);
+        let data = await fetchResult.json();
+        console.log(data);
+        var post = data.items[0]; 
+
+        console.log(post);
+        
+        vscode.postMessage({
+            command: 'copy', // code has been copied.
+            id: id, 
+            dateCopied: Date.now(),
+            lastEdited: post.last_edit_date,
+            code: code, 
+            post: post.body,
+            link: link, // question or answer link.
+            seen: false, 
+            isHidden: false
+        });
+        ///////////////////////////////////////
+
     }
 
     //no search results, and no empty submits. 
@@ -221,7 +245,7 @@ $(document).ready(function(){
                                     <a href="`+ link +`" class="card-link" target='_blank'>
                                         View Original Question On StackOverflow
                                     </a>
-                                    <input id='x' type='hidden' value='`+ link +`'/>
+                                    <input id='link_`+ questionID +`' type='hidden' value='`+ link +`'/>
                                 </div>
 
                                 <div id="answerContainer">
@@ -254,7 +278,7 @@ $(document).ready(function(){
                     </blockquote>
                 </div>
                 <a href='`+ link +`'> Link to Answer on StackOverflow </a>
-                <input type='hidden' value='`+ link +`'/>
+                <input id='link_`+ answerID +`' type='hidden' value='`+ link +`'/>
             </div>
         `;
     }
