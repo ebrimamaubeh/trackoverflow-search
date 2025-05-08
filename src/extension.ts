@@ -84,7 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
                         // const key = post.id.toString();
                         hasCopiedCode = true;
                         //context.workspaceState.update(key, post);
-                        showMessageT('copied');
+                        vscode.window.showInformationMessage('copied');
                         break;
                 }
             },
@@ -110,10 +110,8 @@ export function activate(context: vscode.ExtensionContext) {
 
                 if ((hasPasted || hasReplacedPasted) && tempCopiedPost) {
                     const key = tempCopiedPost.id.toString();
-                    // if the paste happend, then you should store the workspace obj.
                     context.workspaceState.update(key, tempCopiedPost);
-
-                    showMessageT('Pasted Code is being Tracked.');
+                    vscode.window.showInformationMessage('Pasted Code is being Tracked.');
 
                     // reset variables. 
                     hasCopiedCode = false;
@@ -121,18 +119,6 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }
         }
-    }
-
-    // function to show message with a timeout.
-    function showMessageT(message: string) {
-
-        // got this code snippet from gemeni. 
-        const output = vscode.window.showInformationMessage(message);
-        setTimeout(() => {
-            output.then((value) => { // value not needed for disposal. 
-                (output as any)._disposable.dispose();
-            });
-        }, 1000); // = 1 second.
     }
 
     const trackOverflowStorageDisposable = vscode.commands.registerCommand('trackoverflow-search.dataStorage', async (setIntervalArg) => {
