@@ -109,9 +109,15 @@ export function activate(context: vscode.ExtensionContext) {
                 const hasReplacedPasted = change.rangeLength > 0 && change.text.length > change.rangeLength * 2;
 
                 if ((hasPasted || hasReplacedPasted) && tempCopiedPost) {
-                    const key = tempCopiedPost.id.toString();
-                    context.workspaceState.update(key, tempCopiedPost);
-                    vscode.window.showInformationMessage('Pasted Code is being Tracked.');
+
+                    // check if the copied text is the same as pasted text.
+                    var copiedCodeSub = change.text.substring(0, 5); // check first 5 chars. 
+                    var temptCodeSub = tempCopiedPost.code.substring(0, 5);
+                    if (copiedCodeSub === temptCodeSub) {
+                        const key = tempCopiedPost.id.toString();
+                        context.workspaceState.update(key, tempCopiedPost);
+                        vscode.window.showInformationMessage('Pasted Code is being Tracked.');
+                    }
 
                     // reset variables. 
                     hasCopiedCode = false;
