@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     //changbe dates.
     // TODO: check dates of the comments, ont working yet.
-    // Helpers.changeCopiedDates(context);
+    Helpers.changeCopiedDates(context);
 
     // Helpers.postsHasNewComments(context);
     // Helpers.getCommentsWithWordShippets(context);
@@ -147,11 +147,9 @@ export function activate(context: vscode.ExtensionContext) {
         storagePanelVisible = true;
 
         var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
-        console.log('110: updated_posts: ', updated_posts);
+        console.log('here mau: updated_posts: ', updated_posts);
 
-        //testing...
         panel.onDidDispose(() => { storagePanelVisible = false; }, null, context.subscriptions);
-        //testing...
 
         //TODO: This should change later, to revisions or comments. 
         if (setIntervalArg && Helpers.unSeenPostCount(updated_posts) === 1) { // function called by setInterval...
@@ -169,7 +167,6 @@ export function activate(context: vscode.ExtensionContext) {
              * else{ new post links }
              */
             //TODO: this should have both post revisions or comments. 
-
             const postHasNewComments = await Helpers.postsHasNewComments(context);
             const postHasNewRevisions = await Helpers.hasNewRevisionsPost(context);
 
@@ -178,9 +175,10 @@ export function activate(context: vscode.ExtensionContext) {
                 const comments_with_snippets = await Helpers.getCommentsWithWordShippets(context);
                 //await Helpers.getStoredDataPostIDs(context);
                 const post_ids = context.workspaceState.keys();
-                console.log('post ids here: ', post_ids);
+                console.log('in else: post ids here: ', post_ids);
 
                 // revisions or comments can be missing.
+                // here: not working....
                 panel.webview.postMessage({
                     command: 'list-post-revisions-comments',
                     revisions_with_snippets: revisions_with_snippets,
@@ -204,12 +202,15 @@ export function activate(context: vscode.ExtensionContext) {
                     });
                     break;
                 case 'back-button':
-                    const post_revisions = await Helpers.getNewRevisionsPost(context);
+                    const revisions_with_snippets = await Helpers.getNewRevisionsPost(context);
                     const comments_with_snippets = await Helpers.getCommentsWithWordShippets(context);
+                    const post_ids = context.workspaceState.keys();
+
                     panel.webview.postMessage({
                         command: 'list-post-revisions-comments',
-                        post_revisions: post_revisions,
-                        comments_with_snippets: comments_with_snippets
+                        revisions_with_snippets: revisions_with_snippets,
+                        comments_with_snippets: comments_with_snippets,
+                        post_ids: post_ids,
                     });
                     break;
                 case 'hide-button':

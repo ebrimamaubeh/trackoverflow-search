@@ -1,15 +1,11 @@
-################################ working on traking pasting #################################
-1. if the user copies text, it assumes that the user will past it, you need to track this.
-change the current implementation to check if the user is pasting it...
-################################ working on traking pasting #################################
-
-I stopped working on this for some time, i forgot about where to start. 
-so I will continue above, When I try to debug, I will later continue here. 
+I stopped working on this for some time, i forgot about where to start.
+so I will continue above, When I try to debug, I will later continue here.
 ############################ currently working on ############################################
+Seems like you need to re-work TrackOverflow Data page. do this quick.
 0. this is where i got stuck: I am currrently getting revisions, but i first have to get post, and check if
    it has comments, but I am getting revisions in extensions helpers and now I am stuck getting post for the 
-   revisions. so therefore i have to do this in js (datastorage). 
-1. I am working on getting updated post, that has the words in wordssnippets. 
+   revisions. so therefore i have to do this in js (datastorage).
+1. I am working on getting updated post, that has the words in wordssnippets.
 2. working on new comments that are added, and includes words in wordssnippets. (working on this).
 ############################ currently working on ############################################
 
