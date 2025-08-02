@@ -153,6 +153,7 @@ $(document).ready(function () {
 
         fetch(url)
             .then(response => {
+                console.log('mau: must reset date to avoid 400 error code.');
                 if (!response.ok) { throw new Error(`Failed to fetch data: ${response.status}`); }
                 return response.json();
             }).then(data => {

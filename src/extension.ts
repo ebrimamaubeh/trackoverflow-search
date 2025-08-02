@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     //changbe dates.
     // TODO: check dates of the comments, ont working yet.
-    Helpers.changeCopiedDates(context);
+    // Helpers.changeCopiedDates(context);
 
     // Helpers.postsHasNewComments(context);
     // Helpers.getCommentsWithWordShippets(context);
