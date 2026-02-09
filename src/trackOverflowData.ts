@@ -50,8 +50,8 @@ export function wordSnippetList() {
     // link to get comments. 
     // https://api.stackexchange.com/docs/comments-on-posts
     const array = [
-        'error', 'errors', 'debug error',
-        'code does not work', 'contains errors', 'not working',
+        'error', 'errors', 'debug error', 'error fixed', 'bug fixed', 'security vulnerability',
+        'code does not work', 'contains errors', 'not working', 'vulnerability fixed',
         'deprecated code', 'update', 'updated code', 'code upgrade', 'code changed',
         'more details'
     ];

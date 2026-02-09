@@ -1,0 +1,12 @@
+How wo write the test: algorithm psudocode. 
+
+1. read xml file and get all posts (questions and or answers)
+2. copy a code segment and store in datastroage (to represent a post). this will store it.
+3. then check if an update has been made to that code. if so, send notification (make notification counter or something.)
+4. then report starts: 
+    a) copy code snippets from 100k post
+    b) check code update. 
+    x) use tags to help you with targets (maybe)
+    c) how many code snippets have bugs been detected (notification counter).
+    d) check someting else you missed, maybe; try check if you missed anything?. false positives? ....
+    

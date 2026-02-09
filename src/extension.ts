@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 import { TrackOverflowPost } from './trackOverflowData';
 import * as Helpers from './helpers';
+import * as TrackOverflowTest from './trackOverflowTest';
 
 // Global variable to store the interval ID
 let intervalId: NodeJS.Timeout | undefined;
@@ -37,6 +38,10 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     }, ONE_SECOND * 60 * 5);
+
+    /// testing program //////////////
+    TrackOverflowTest.fileStreamFunctionTest();
+    /// testing program //////////////
 
     //delete
     // Helpers.deleteAllWorkspaceData(context);
@@ -139,6 +144,13 @@ export function activate(context: vscode.ExtensionContext) {
             }
         );
 
+        // TODO: maybe you should make this nicer later. if there are not post, show blank page 
+        // of dataStorage.
+        var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
+        if (!updated_posts.length) {
+            vscode.window.showErrorMessage('No Notification Post Yet');
+            return;
+        }
 
         const scriptPath = vscode.Uri.joinPath(context.extensionUri, 'src/js/', 'dataStorage.js');
         const scriptSrc = panel.webview.asWebviewUri(scriptPath);
@@ -146,7 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
         panel.webview.html = getDataPageHTML(scriptSrc);
         storagePanelVisible = true;
 
-        var updated_posts = await Helpers.getAllUpdatedStoredPosts(context);
+
         console.log('here mau: updated_posts: ', updated_posts);
 
         panel.onDidDispose(() => { storagePanelVisible = false; }, null, context.subscriptions);

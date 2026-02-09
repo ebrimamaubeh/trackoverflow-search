@@ -19,7 +19,7 @@
       },
       {
         "command": "trackoverflow-search.dataStorage",
-        "title": "TrackOverflow Stored Data"
+        "title": "TrackOverflow Data"
       }
     ]
   },
@@ -41,5 +41,11 @@
     "@vscode/test-electron": "^2.4.0",
     "eslint": "^8.57.0",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "chai": "^5.2.1",
+    "node-fetch": "^3.3.2",
+    "stream-json": "^1.9.1",
+    "xmldom": "^0.6.0"
   }
 }

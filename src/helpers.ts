@@ -294,14 +294,12 @@ export async function getAllUpdatedStoredPosts(context: vscode.ExtensionContext)
 
 export function deleteAllWorkspaceData(context: vscode.ExtensionContext): void {
     var keys = context.workspaceState.keys();
-    console.log('keys before: ', keys);
 
     for (var i = 0; i < keys.length; i++) {
         context.workspaceState.update(keys[i], undefined);
     }
 
     keys = context.workspaceState.keys();
-    console.log('keys after: ', keys);
 }
 
 export async function changeCopiedDates(context: vscode.ExtensionContext) {
