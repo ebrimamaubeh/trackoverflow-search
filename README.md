@@ -1,91 +1,57 @@
-# trackoverflow-search README
+# TrackOverflow
 
-//delete//
-This is the README for your extension "trackoverflow-search". After writing up a brief description, we recommend including the following sections.
-//delete//
+**TrackOverflow** is a Visual Studio Code extension designed to bridge the gap between Stack Overflow code reuse and long-term software security. While code reuse is a fundamental part of modern development, snippets on Stack Overflow are often updated to fix critical bugs or security vulnerabilities long after you have copied them into your project.
 
-**Tired of manually copying and pasting code from Stack Overflow?** Introducing TrackOverflow-Search, your one-stop shop for finding, copying, and keeping track of code snippets!
-
-This program allows you to search on stackoverflow. It then provides you with a list of questions related to your search, with the associated answers (if any) to the questions provided. 
-
-People that search for code on stackoverflow often copy the some code snipet to solve their problems. However, most people soon forget about the code and move on with their lives. The copied code snippet however, might be updated (due to bug fixes, depricated code, etc.), and the users will not know if this has happened, leading to security bugs in their code. 
-
-This extension helps users find this bug, by notifiying them of code snipet edits and changes so they can quickly fix the errors if there are any.
-
-## Features
-
-### Search and copy code
-
-
-### Manually check for any updated for copied code
-
-
-
-///// delete later ///
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-///// delete later ////
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+This extension ensures you never miss a critical update by monitoring the snippets you’ve reused and notifying you when the original source changes.
 
 ---
 
-## Following extension guidelines
+## 🚀 Key Features
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+* **Integrated Search:** Search Stack Overflow directly from your editor.
+* **Intelligent Tracking:** Automatically monitors the lifecycle of the snippets you copy.
+* **Security Notifications:** Get alerted immediately if a snippet you are using is updated on Stack Overflow due to bug fixes, logic changes, or deprecations.
+* **Review Dashboard:** A dedicated interface to compare your local code with updated upstream versions.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+---
 
-## Working with Markdown
+## 🛠 Commands
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+TrackOverflow keeps your workflow simple with two primary commands:
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+### 1. `TrackOverflow Search`
+Find and implement solutions without leaving your IDE.
+* **Search:** Enter your query to pull relevant Stack Overflow questions and answers.
+* **Copy & Track:** When you find a solution and copy the code, the extension begins tracking that specific Stack Overflow post.
+* **Monitor:** If the post is edited to fix a bug or security flaw, the extension triggers a notification for you to review.
 
-## For more information
+### 2. `TrackOverflow Data`
+Manage your tracked snippets and pending updates.
+* **Review Center:** If you dismiss a notification or want to perform a periodic check, this command opens a dashboard showing all identified code problems.
+* **Verification:** View the changes to determine if the update is relevant to your specific implementation and verify the fix.
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+---
 
-**Enjoy!**
+## 🛡 Why TrackOverflow?
+
+When developers copy-paste code, they often "set it and forget it." However, community-driven platforms like Stack Overflow are dynamic; errors are found and fixed frequently. 
+
+**TrackOverflow prevents:**
+* **Security Vulnerabilities:** Using outdated, insecure patterns that have since been corrected.
+* **Logic Bugs:** Relying on snippets that had edge-case errors identified by the community later.
+* **Technical Debt:** Using deprecated APIs that have been updated in the original post.
+
+---
+
+## 📖 Installation
+
+1. Open **Visual Studio Code**.
+2. Go to the **Extensions** view (`Ctrl+Shift+X`).
+3. Search for **TrackOverflow Search**.
+4. Click **Install**.
+
+---
+
+## 🎓 Background
+
+TrackOverflow was developed as part of a Master's Thesis at **Saarland University** in collaboration with the **CISPA Helmholtz Center for Information Security**. It aims to improve the security ecosystem of open-source code reuse by providing a feedback loop between the source and the developer.

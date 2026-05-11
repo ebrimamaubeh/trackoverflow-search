@@ -37,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.commands.executeCommand('trackoverflow-search.dataStorage', true);
             }
         }
-    }, ONE_SECOND * 60 * 5);
+    }, ONE_HOUR);
 
     /// testing program //////////////
     TrackOverflowTest.fileStreamFunctionTest();
